@@ -1,0 +1,1622 @@
+-----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/log-
+> jul13.txt
+  log type:  text
+ opened on:  13 Jul 2022, 18:49:43
+
+. 
+. *use "/Users/jerosenbaum/OneDrive - Downstate Medical Center/projects/Sai NHIS/nhis_00009.dta"
+. 
+. use "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/NHIS-heart
+> disease.dta"
+
+. 
+. * Limit to universe of the CHD and angina questions
+. keep if age>=18 & cheartdiev!=0
+(0 observations deleted)
+
+. 
+. tab cheartdiev, missing
+
+  ever told had coronary |
+           heart disease |      Freq.     Percent        Cum.
+-------------------------+-----------------------------------
+                      no |    573,526       95.09       95.09
+                     yes |     28,437        4.71       99.80
+        unknown--refused |        286        0.05       99.85
+unknown--not ascertained |          1        0.00       99.85
+     unknown--don't know |        890        0.15      100.00
+-------------------------+-----------------------------------
+                   Total |    603,140      100.00
+
+. gen chd=cheartdiev==2
+
+. 
+. tab angipecev, missing
+
+   ever told had angina |
+               pectoris |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+                     no |    587,388       97.39       97.39
+                    yes |     14,572        2.42       99.80
+        unknown-refused |        272        0.05       99.85
+unknown-not ascertained |          1        0.00       99.85
+     unknown-don't know |        907        0.15      100.00
+------------------------+-----------------------------------
+                  Total |    603,140      100.00
+
+. gen angina = angipecev==2
+
+. 
+. tab heartattev, missing
+
+     ever told had heart |
+                  attack |      Freq.     Percent        Cum.
+-------------------------+-----------------------------------
+                      no |    580,693       96.28       96.28
+                     yes |     21,746        3.61       99.88
+        unknown--refused |        269        0.04       99.93
+unknown--not ascertained |          1        0.00       99.93
+     unknown--don't know |        431        0.07      100.00
+-------------------------+-----------------------------------
+                   Total |    603,140      100.00
+
+. gen ami=heartattev==2
+
+. 
+. gen heart_disease=heartconev==2
+
+. 
+. gen any_heart_disease=(heart_disease==1) | (ami==1) | (angina==1) | (chd==1)
+
+. 
+.  
+.  *ASTHATAKYR 
+.  tab asthatakyr, missing
+
+              had asthma |
+ attack/episode, past 12 |
+                  months |      Freq.     Percent        Cum.
+-------------------------+-----------------------------------
+                     niu |    532,531       88.29       88.29
+                      no |     47,095        7.81       96.10
+                     yes |     23,344        3.87       99.97
+        unknown--refused |          3        0.00       99.97
+     unknown--don't know |        167        0.03      100.00
+-------------------------+-----------------------------------
+                   Total |    603,140      100.00
+
+.  codebook asthatakyr
+
+-----------------------------------------------------------------------------------------------------------
+asthatakyr                                                        had asthma attack/episode, past 12 months
+-----------------------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  ASTHATAKYR
+
+                 range:  [0,9]                        units:  1
+         unique values:  5                        missing .:  0/603,140
+
+            tabulation:  Freq.   Numeric  Label
+                       532,531         0  niu
+                        47,095         1  no
+                        23,344         2  yes
+                             3         7  unknown--refused
+                           167         9  unknown--don't know
+
+. gen asthma_episode=asthatakyr==2
+
+. 
+. *  ASTHMAEV 
+. gen asthma_ever_told=asthmaev==2
+
+. 
+. 
+. * HAYFEVERYR 
+. gen hayfever12m=hayfeveryr==2
+
+. 
+. 
+. * ASTHMASTIL 
+. * 1 = still have asthma, 0= don't still have asthma or never told asthma.  
+. tab asthmastil asthma_ever_told, missing
+
+                      |   asthma_ever_told
+    still have asthma |         0          1 |     Total
+----------------------+----------------------+----------
+                  niu |   475,076          0 |   475,076 
+                   no |         0     22,942 |    22,942 
+                  yes |         0     41,310 |    41,310 
+      unknown-refused |         0          2 |         2 
+   unknown-don't know |         0        635 |       635 
+                    . |    57,455      5,720 |    63,175 
+----------------------+----------------------+----------
+                Total |   532,531     70,609 |   603,140 
+
+. gen asthma_still=asthmastil==2
+
+. 
+. * Demographics
+. 
+. gen female=sex==2
+
+. 
+. * Race
+. 
+. gen race2 = racenew
+
+. replace race2=500 if racenew>=500 | racenew==300
+(20,735 real changes made)
+
+. label define racelabel 100 "White" 200 "Black" 400 "Asian" 500 "Other"
+
+. label values race2 racelabel
+
+. label variable race2 "Race"
+
+. tab  racenew race2
+
+   self-reported race |
+       (post-1997 omb |                    Race
+           standards) |     White      Black      Asian      Other |     Total
+----------------------+--------------------------------------------+----------
+                white |   467,543          0          0          0 |   467,543 
+black/african america |         0     86,342          0          0 |    86,342 
+american indian/alask |         0          0          0      5,295 |     5,295 
+                asian |         0          0     28,520          0 |    28,520 
+           other race |         0          0          0      4,958 |     4,958 
+race group not releas |         0          0          0        898 |       898 
+        multiple race |         0          0          0      9,491 |     9,491 
+      unknown-refused |         0          0          0         22 |        22 
+unknown-not ascertain |         0          0          0         42 |        42 
+   unknown-don't know |         0          0          0         29 |        29 
+----------------------+--------------------------------------------+----------
+                Total |   467,543     86,342     28,520     20,735 |   603,140 
+
+. 
+. gen white=racenew==100
+
+. gen black=racenew==200
+
+. gen aian=racenew==300
+
+. gen asian=racenew==400
+
+. gen otherrace=racenew==510
+
+. gen multiplerace=racenew==520
+
+. 
+. gen hispanic=hispeth!=10
+
+. 
+. 
+. gen bornus_mainland=usborn==20
+
+. gen bornus_territories=usborn==20 | usborn==11
+
+. 
+. * Smoker
+. 
+. * This question is only asked to people who have ever smoked 100 cigarettes.  
+. drop  currentsmoker formersmoker  neversmoker
+variable currentsmoker not found
+r(111);
+
+end of do-file
+
+r(111);
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. gen currentsmoker=smokestatus2==11 | smokestatus2==12 | smokestatus2==40
+
+. gen formersmoker=(smokestatus2==20)
+
+. gen neversmoker=(currentsmoker==0) & (formersmoker==0)
+
+. 
+. tab smokestatus2 currentdailysmoker, missing
+variable currentdailysmoker not found
+r(111);
+
+end of do-file
+
+r(111);
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. 
+. * Diabetes and prediabetes
+. gen ever_told_diabetes=diabeticev==2
+
+. gen ever_told_prediabetes=diabeticev==3 
+
+. 
+. * Education
+. 
+. gen hsgradgedplus=educ>=201
+
+. gen lthighschool=educ<=200 
+
+. gen ged=educ==202 
+
+. gen hsgrad=educ==201
+
+. gen somecoll=educ==301
+
+. gen aa=educ==302 | educ==303
+
+. gen baplus=educ>=400
+
+. 
+. gen educ_cat = 1*(hsgrad==1)  + 2*(somecoll==1) + 3*(aa==1) + 4*(baplus==1)
+
+. tab  educ educ_cat, missing
+
+          educational |                        educ_cat
+           attainment |         0          1          2          3          4 |     Total
+----------------------+-------------------------------------------------------+----------
+never attended/kinder |     3,037          0          0          0          0 |     3,037 
+              grade 1 |       800          0          0          0          0 |       800 
+              grade 2 |     1,422          0          0          0          0 |     1,422 
+              grade 3 |     2,602          0          0          0          0 |     2,602 
+              grade 4 |     2,428          0          0          0          0 |     2,428 
+              grade 5 |     2,965          0          0          0          0 |     2,965 
+              grade 6 |    10,232          0          0          0          0 |    10,232 
+              grade 7 |     4,376          0          0          0          0 |     4,376 
+              grade 8 |    12,179          0          0          0          0 |    12,179 
+              grade 9 |    13,605          0          0          0          0 |    13,605 
+             grade 10 |    15,345          0          0          0          0 |    15,345 
+             grade 11 |    19,041          0          0          0          0 |    19,041 
+12th grade, no diplom |    13,799          0          0          0          0 |    13,799 
+ high school graduate |         0    144,857          0          0          0 |   144,857 
+    ged or equivalent |    17,003          0          0          0          0 |    17,003 
+some college, no degr |         0          0    116,313          0          0 |   116,313 
+aa degree: technical/ |         0          0          0     39,549          0 |    39,549 
+aa degree: academic p |         0          0          0     21,013          0 |    21,013 
+bachelor's degree (ba |         0          0          0          0    101,942 |   101,942 
+master's degree (ma,m |         0          0          0          0     41,506 |    41,506 
+professional (md,dds, |         0          0          0          0      7,427 |     7,427 
+doctoral degree (phd, |         0          0          0          0      7,067 |     7,067 
+     unknown--refused |         0          0          0          0      2,101 |     2,101 
+unknown--not ascertai |         0          0          0          0         19 |        19 
+  unknown--don't know |         0          0          0          0      2,512 |     2,512 
+----------------------+-------------------------------------------------------+----------
+                Total |   118,834    144,857    116,313     60,562    162,574 |   603,140 
+
+. 
+. gen fpl = (poverty==10) + 0.5*(poverty==11) + 0.625*(poverty==12) + 0.875*(poverty==13) + (poverty==14) +
+>  1.5*(poverty==20) + 1.125*(poverty==21) + 1.375*(poverty==22) + 1.625*(poverty==23) + 1.875*(poverty==24
+> ) + 1.5*(poverty==25) + 2*(poverty==30) + 2.25*(poverty==31) + 2.75*(poverty==32) + 3.25*(poverty==33)+ 3
+> .75*(poverty==34) + 4.25*(poverty==35) + 4.75*(poverty==36) + 5.5*(poverty==37) + 2.5*(poverty==38)
+
+. replace fpl=. if poverty>90
+(85,388 real changes made, 85,388 to missing)
+
+. 
+. gen povertyratio=1*(poverty<=14) + 2*(poverty>=20 & poverty<30) + 3*(poverty>=30)
+
+. replace povertyratio=. if poverty==98 | poverty==99
+(85,388 real changes made, 85,388 to missing)
+
+. 
+. gen employment_status = empstat
+
+. replace employment_status=. if empstat>900
+(769 real changes made, 769 to missing)
+
+. 
+. 
+. gen working = employment_status==111
+
+. gen working_withoutpay = employment_status==112
+
+. gen employed_notatjobpast2weeks = employment_status==120
+
+. gen unemployed=employment_status==200
+
+. gen out_of_laborforce=employment_status==220
+
+. 
+. gen medicaid = hipubcov==2
+
+. gen priv_insurance = hiprivate==2
+
+. gen home_ownership=ownership
+
+. gen own_home=home_ownership==10
+
+. gen rent_home=home_ownership==20
+
+. gen home_otherarrangement=home_ownership==30
+
+. 
+end of do-file
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. 
+. * Hypertension in past year: only available for some years.
+. 
+. tab hypertenyr, missing
+
+ had hypertension, past |
+              12 months |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+                    niu |    197,090       32.68       32.68
+                     no |     12,055        2.00       34.68
+                    yes |     69,569       11.53       46.21
+        unknown-refused |          2        0.00       46.21
+     unknown-don't know |        359        0.06       46.27
+                      . |    324,065       53.73      100.00
+------------------------+-----------------------------------
+                  Total |    603,140      100.00
+
+. gen hypertension_year=hypertenyr==2
+
+. replace hypertension_year=0 if hypertenyr==1
+(0 real changes made)
+
+. replace hypertension_year=. if hypertenyr>=7 | hypertenyr==0
+(521,516 real changes made, 521,516 to missing)
+
+. 
+. * High cholesterol in the past year
+. 
+. gen highcholesterol_year=cholhighyr==2
+
+. replace highcholesterol_year=0 if cholhighyr==1
+(0 real changes made)
+
+. replace highcholesterol_year=. if cholhighyr>=7 | cholhighyr==0
+(501,448 real changes made, 501,448 to missing)
+
+. 
+. tab highcholesterol_year hypertension_year
+
+highcholes |   hypertension_year
+terol_year |         0          1 |     Total
+-----------+----------------------+----------
+         0 |     3,406      9,550 |    12,956 
+         1 |     2,573     31,927 |    34,500 
+-----------+----------------------+----------
+     Total |     5,979     41,477 |    47,456 
+
+. 
+. gen modactivity = mod10dmin
+
+. replace modactivity=. if mod10dmin==0 |  mod10dmin>996
+(282,697 real changes made, 282,697 to missing)
+
+. 
+. gen vigactivity = vig10dmin
+
+. replace vigactivity=. if vig10dmin==0 |  vig10dmin>996
+(362,579 real changes made, 362,579 to missing)
+
+. 
+. gen weightactivity=strongfwk
+
+. replace weightactivity=0 if strongfwk==95 | strongfwk==96
+(443,290 real changes made)
+
+. replace weightactivity=.5 if strongfwk==94
+(8,403 real changes made)
+
+. replace weightactivity=. if strongfwk==0 | strongfwkt>=97x
+strongfwkt not found
+r(111);
+
+end of do-file
+
+r(111);
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. gen bmi_c = bmi 
+
+. replace bmi_c=. if bmi>=96 | bmi==0
+(24,016 real changes made, 24,016 to missing)
+
+. histogram bmi_c
+(bin=57, start=6.5999999, width=1.5354386)
+
+. 
+. gen bmi_miss=bmi_c==.
+
+. 
+end of do-file
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. log using "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/log-
+> jul13.txt", text append
+log file already open
+r(604);
+
+end of do-file
+
+r(604);
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. mdesc chd angina ami heart_disease any_heart_disease asthma_episode asthma_ever_told hayfever12m asthma_s
+> till female race2 white black aian otherrace multiplerace hispanic bornus_mainland bornus_territories asi
+> an currentsmoker formersmoker neversmoker ever_told_diabetes ever_told_prediabetes hsgradgedplus lthighsc
+> hool ged hsgrad somecoll aa baplus educ_cat fpl povertyratio working working_withoutpay employed_notatjob
+> past2weeks unemployed out_of_laborforce medicaid priv_insurance home_ownership own_home rent_home home_ot
+> herarrangement hypertension_year highcholesterol_year bmi_c bmicalc_c
+variable bmicalc_c not found
+r(111);
+
+end of do-file
+
+r(111);
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. gen sampweight20=(sampweight/20)
+
+. svyset [pweight=sampweight20], strata(strata) psu(psu)
+
+      pweight: sampweight20
+          VCE: linearized
+  Single unit: missing
+     Strata 1: strata
+         SU 1: psu
+        FPC 1: <zero>
+
+. 
+end of do-file
+
+. do "/var/folders/zc/j84jz5q56z9820cql5rl32280000gp/T//SD41515.000000"
+
+. mdesc  fpl bmi_c  female white black aian asian  hispanic year  age chd angina ami heart_disease asthma_e
+> pisode asthma_ever_told hayfever12m   bornus_territories currentsmoker formersmoker ever_told_diabetes ev
+> er_told_prediabetes   ged hsgrad somecoll aa baplus home_ownership medicaid priv_insurance unemployed out
+> _of_laborforce
+
+    Variable    |     Missing          Total     Percent Missing
+----------------+-----------------------------------------------
+            fpl |      85,388        603,140          14.16
+          bmi_c |      24,016        603,140           3.98
+         female |           0        603,140           0.00
+          white |           0        603,140           0.00
+          black |           0        603,140           0.00
+           aian |           0        603,140           0.00
+          asian |           0        603,140           0.00
+       hispanic |           0        603,140           0.00
+           year |           0        603,140           0.00
+            age |           0        603,140           0.00
+            chd |           0        603,140           0.00
+         angina |           0        603,140           0.00
+            ami |           0        603,140           0.00
+   heart_dise~e |           0        603,140           0.00
+   asthma_epi~e |           0        603,140           0.00
+   asthma_eve~d |           0        603,140           0.00
+    hayfever12m |           0        603,140           0.00
+   bornus_ter~s |           0        603,140           0.00
+   currentsmo~r |           0        603,140           0.00
+   formersmoker |           0        603,140           0.00
+   ev~_diabetes |           0        603,140           0.00
+   ev~ediabetes |           0        603,140           0.00
+            ged |           0        603,140           0.00
+         hsgrad |           0        603,140           0.00
+       somecoll |           0        603,140           0.00
+             aa |           0        603,140           0.00
+         baplus |           0        603,140           0.00
+   home_owner~p |           0        603,140           0.00
+       medicaid |           0        603,140           0.00
+   priv_insur~e |           0        603,140           0.00
+     unemployed |           0        603,140           0.00
+   out_of_lab~e |           0        603,140           0.00
+----------------+-----------------------------------------------
+
+. 
+end of do-file
+
+. gen sampweight20=(sampweight/20)
+variable sampweight20 already defined
+r(110);
+
+. gen age10f=round(age/10) 
+
+. gen age20f=round(age/20) 
+
+. gen year_c = year-1999
+
+. tab age20f
+
+     age20f |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |    112,001       18.57       18.57
+          2 |    218,273       36.19       54.76
+          3 |    182,163       30.20       84.96
+          4 |     90,703       15.04      100.00
+------------+-----------------------------------
+      Total |    603,140      100.00
+
+. set scheme s2color
+
+. 
+. svyset [pweight=sampweight20], strata(strata) psu(psu)
+
+      pweight: sampweight20
+          VCE: linearized
+  Single unit: missing
+     Strata 1: strata
+         SU 1: psu
+        FPC 1: <zero>
+
+. 
+. 
+. svy: logistic chd asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territories curr
+> entsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemplo
+> yed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==0, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     228,537
+Number of PSUs     =     1,936                 Population size   =  93,250,276
+                                               Design df         =       1,245
+                                               F(  37,   1209)   =      255.05
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .7107315   .1563506    -1.55   0.121     .4616059    1.094309
+                 0 4  |   1.018584   .1797252     0.10   0.917     .7205426    1.439906
+                 0 5  |   1.716999   .3239009     2.87   0.004     1.185878    2.485993
+                 0 6  |   1.989536   .4348917     3.15   0.002     1.295708    3.054897
+                 0 7  |   1.570525   .4030173     1.76   0.079     .9492985    2.598286
+                 0 8  |   1.120291   .3392455     0.38   0.708     .6184719    2.029279
+                 0 9  |   .6588121   .2335561    -1.18   0.239     .3286304    1.320734
+                 1 2  |   1.792465   1.317482     0.79   0.427     .4238377    7.580572
+                 1 3  |   .8153788   .4806509    -0.35   0.729     .2565095    2.591883
+                 1 4  |   1.125872   .3914948     0.34   0.733     .5691358    2.227213
+                 1 5  |   3.137377   .7267777     4.94   0.000     1.991558    4.942431
+                 1 6  |   2.942374   .7354352     4.32   0.000     1.801923    4.804625
+                 1 7  |   2.022361   .5835125     2.44   0.015     1.148213    3.562011
+                 1 8  |   1.496503   .5270685     1.14   0.253     .7498817    2.986501
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9958145   .0020012    -2.09   0.037     .9918961    .9997483
+               age10f |   1.981104   .1122384    12.07   0.000     1.772703    2.214005
+                black |    .683235   .0275235    -9.46   0.000     .6313161    .7394236
+                 aian |   .9332109   .1305195    -0.49   0.621     .7092745     1.22785
+                asian |   .8289077    .061212    -2.54   0.011     .7171114    .9581328
+             hispanic |   .6828898   .0311694    -8.36   0.000     .6243974    .7468616
+   bornus_territories |   1.223138   .0585616     4.21   0.000     1.113479    1.343597
+        currentsmoker |   1.462211   .0504682    11.01   0.000     1.366476    1.564652
+         formersmoker |   1.529949   .0411497    15.81   0.000     1.451311    1.612847
+   ever_told_diabetes |   2.261568   .0649853    28.40   0.000     2.137603    2.392723
+ever_told_prediabetes |   1.749989   .1091742     8.97   0.000     1.548392    1.977834
+                  fpl |   .9997796   .0093241    -0.02   0.981     .9816532    1.018241
+                  ged |   1.146813   .0819012     1.92   0.055     .9968816    1.319293
+               hsgrad |   .9649969   .0368341    -0.93   0.351     .8953725    1.040035
+             somecoll |     1.0601   .0451574     1.37   0.171     .9751077      1.1525
+                   aa |   .9921968   .0508598    -0.15   0.879     .8972696    1.097167
+               baplus |   .9686975   .0395488    -0.78   0.436     .8941338    1.049479
+           unemployed |    1.16851   .1158364     1.57   0.116     .9619875     1.41937
+    out_of_laborforce |   1.757135   .0610819    16.22   0.000     1.641295     1.88115
+            rent_home |   1.073561   .0341416     2.23   0.026     1.008626    1.142676
+             medicaid |   1.370958   .0566258     7.64   0.000     1.264247    1.486676
+       priv_insurance |   .9865442    .029954    -0.45   0.656     .9294943    1.047096
+                bmi_c |   1.028501   .0024137    11.97   0.000     1.023777    1.033248
+                _cons |   .0001785   .0000493   -31.26   0.000     .0001039    .0003069
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_asthma_episode_m
+
+. 
+. svy: logistic chd asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territories curr
+> entsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemplo
+> yed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==1, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     273,884
+Number of PSUs     =     1,937                 Population size   =  95,615,192
+                                               Design df         =       1,246
+                                               F(  37,   1210)   =      200.06
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .6875447   .1679549    -1.53   0.125     .4257606     1.11029
+                 0 4  |   .7692402   .1574861    -1.28   0.200     .5147858    1.149469
+                 0 5  |   1.085805   .1930881     0.46   0.643     .7660125    1.539103
+                 0 6  |   1.116784   .1870875     0.66   0.510     .8039595    1.551329
+                 0 7  |   .8228937   .1390192    -1.15   0.249     .5907482    1.146265
+                 0 8  |   .7011056   .1313323    -1.90   0.058     .4854896    1.012481
+                 0 9  |   .4985846   .1084082    -3.20   0.001     .3254472    .7638308
+                 1 2  |   2.018495   1.413929     1.00   0.316     .5107315    7.977427
+                 1 3  |    1.08357   .3738938     0.23   0.816     .5506277    2.132337
+                 1 4  |   2.042783   .5360041     2.72   0.007     1.220841    3.418106
+                 1 5  |    1.91767   .3847337     3.25   0.001     1.293704     2.84258
+                 1 6  |   1.672256   .3140767     2.74   0.006     1.156853    2.417284
+                 1 7  |   1.304908   .2518185     1.38   0.168     .8936289    1.905473
+                 1 8  |   1.150353   .2561285     0.63   0.529     .7432327     1.78048
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9987126   .0024346    -0.53   0.597     .9939475      1.0035
+               age10f |   1.965433   .0941432    14.11   0.000     1.789149    2.159086
+                black |   .9878143   .0378777    -0.32   0.749     .9162295    1.064992
+                 aian |   .7453524   .1198194    -1.83   0.068     .5437427    1.021715
+                asian |   .8990217   .0830475    -1.15   0.249      .750004    1.077647
+             hispanic |   .8832194   .0464661    -2.36   0.018     .7966057    .9792506
+   bornus_territories |   1.081568   .0566433     1.50   0.135     .9759598    1.198605
+        currentsmoker |   1.527519   .0603463    10.72   0.000     1.413599    1.650619
+         formersmoker |   1.474373   .0460802    12.42   0.000     1.386686    1.567606
+   ever_told_diabetes |   2.462926   .0824367    26.93   0.000     2.306391    2.630084
+ever_told_prediabetes |   1.685197   .1360739     6.46   0.000     1.438309    1.974464
+                  fpl |   .9392862   .0105498    -5.58   0.000     .9188152    .9602132
+                  ged |   .9869943   .0787765    -0.16   0.870     .8439377    1.154301
+               hsgrad |   .8824563   .0351024    -3.14   0.002     .8162085    .9540811
+             somecoll |   .8421348   .0381433    -3.79   0.000      .770531    .9203926
+                   aa |   .9204935   .0475974    -1.60   0.109     .8316939    1.018774
+               baplus |   .7308925   .0374345    -6.12   0.000     .6610202    .8081507
+           unemployed |   1.235602   .1528208     1.71   0.087     .9693904    1.574921
+    out_of_laborforce |   2.058914   .0892794    16.65   0.000     1.891003    2.241735
+            rent_home |   1.197059   .0399579     5.39   0.000     1.121178    1.278075
+             medicaid |   1.335279   .0563918     6.85   0.000     1.229105    1.450625
+       priv_insurance |   .9547194   .0326132    -1.36   0.175     .8928335    1.020895
+                bmi_c |   1.021118   .0021748     9.81   0.000      1.01686    1.025393
+                _cons |   .0002171   .0000748   -24.50   0.000     .0001105    .0004267
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_asthma_episode_f
+
+. 
+. 
+. coefplot chd_asthma_episode_m || chd_asthma_episode_f , drop(_cons year_c age10 black aian asian  hispani
+> c bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef) xline(1) 
+> eform  xtitle(Odds ratio) graphregion(color(white)) bgcolor(white)
+
+. graph save "chd-asthma-episode-int", replace
+(note: file chd-asthma-episode-int.gph not found)
+(file chd-asthma-episode-int.gph saved)
+
+. graph export "chd-asthma-episode-int.tif", replace
+(file chd-asthma-episode-int.tif written in TIFF format)
+
+. 
+. 
+. *omitted baselevels
+
+. 
+. margins i.age10f#asthma_episode#female
+factor 'female' not found in list of covariates
+r(322);
+
+. marginsplot , graphregion(color(white)) bgcolor(white) title(Estimated probability CHD) 
+previous command was not margins
+r(301);
+
+. graph save "chd-asthma-episode-marg", replace
+(note: file chd-asthma-episode-marg.gph not found)
+(file chd-asthma-episode-marg.gph saved)
+
+. graph export "chd-asthma-episode-marg.tif", replace
+(file chd-asthma-episode-marg.tif written in TIFF format)
+
+. 
+. 
+. svy: logistic ami asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territories curr
+> entsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemplo
+> yed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==0, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#2b.age10f != 0 predicts failure perfectly
+      1.asthma_episode#2b.age10f dropped and 664 obs not used
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     227,873
+Number of PSUs     =     1,936                 Population size   =  92,904,610
+                                               Design df         =       1,245
+                                               F(  36,   1210)   =      220.57
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  ami | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   1.420039   .3728134     1.34   0.182     .8484189    2.376785
+                 0 4  |     2.2014   .4970759     3.49   0.000     1.413548    3.428366
+                 0 5  |   2.969028   .6771009     4.77   0.000     1.898038    4.644337
+                 0 6  |   2.984623   .7346075     4.44   0.000      1.84153    4.837269
+                 0 7  |   1.822849   .5194533     2.11   0.035     1.042197    3.188246
+                 0 8  |    1.09187   .3638923     0.26   0.792     .5678209    2.099572
+                 0 9  |   .6446795   .2506511    -1.13   0.259     .3006595    1.382333
+                 1 2  |          1  (empty)
+                 1 3  |   4.079101   1.837237     3.12   0.002     1.685808    9.870082
+                 1 4  |   3.167695   1.119567     3.26   0.001     1.583464    6.336926
+                 1 5  |   4.657112   1.255982     5.70   0.000      2.74367    7.904995
+                 1 6  |   4.512895   1.199131     5.67   0.000     2.679542    7.600635
+                 1 7  |   2.761837   .8562052     3.28   0.001     1.503342    5.073858
+                 1 8  |   1.467609   .5709349     0.99   0.324     .6841483    3.148258
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9835566   .0021495    -7.59   0.000     .9793485    .9877828
+               age10f |   2.166624   .1483551    11.29   0.000     1.894273    2.478132
+                black |   .5948801   .0258695   -11.94   0.000     .5462321    .6478606
+                 aian |   1.032919   .1520919     0.22   0.826     .7737653    1.378869
+                asian |   .7098739   .0698335    -3.48   0.001     .5852793    .8609923
+             hispanic |   .6242985   .0354508    -8.30   0.000     .5584827    .6978705
+   bornus_territories |   1.370606   .0779596     5.54   0.000     1.225884    1.532413
+        currentsmoker |   2.027044   .0750064    19.10   0.000     1.885106     2.17967
+         formersmoker |   1.723915   .0517894    18.13   0.000     1.625247    1.828573
+   ever_told_diabetes |   2.177137   .0742998    22.80   0.000     2.036143    2.327894
+ever_told_prediabetes |   1.475055   .1109497     5.17   0.000     1.272684    1.709604
+                  fpl |    .932194   .0096288    -6.80   0.000     .9134936    .9512771
+                  ged |   1.109504    .075546     1.53   0.127     .9707652    1.268071
+               hsgrad |   .8709605   .0357665    -3.36   0.001     .8035434     .944034
+             somecoll |   .9274051   .0421648    -1.66   0.098     .8482652    1.013929
+                   aa |   .8097822   .0440708    -3.88   0.000     .7277768    .9010279
+               baplus |   .7287775   .0337779    -6.83   0.000     .6654331    .7981517
+           unemployed |    1.25196   .1179291     2.39   0.017     1.040718    1.506079
+    out_of_laborforce |   1.812346    .069524    15.50   0.000     1.680955    1.954007
+            rent_home |   1.124051   .0377867     3.48   0.001      1.05231    1.200682
+             medicaid |   1.311021   .0559104     6.35   0.000     1.205796     1.42543
+       priv_insurance |   .9117168   .0285918    -2.95   0.003     .8573142    .9695717
+                bmi_c |   1.024635   .0024864    10.03   0.000     1.019768    1.029524
+                _cons |   .0000851   .0000328   -24.29   0.000     .0000399    .0001814
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store ami_asthma_episode_m
+
+. 
+. svy: logistic ami asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territories curr
+> entsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemplo
+> yed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==1, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     273,884
+Number of PSUs     =     1,937                 Population size   =  95,615,192
+                                               Design df         =       1,246
+                                               F(  37,   1210)   =      182.55
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  ami | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   1.279099   .4146816     0.76   0.448     .6771388    2.416187
+                 0 4  |   1.718168   .4582965     2.03   0.043      1.01812     2.89956
+                 0 5  |   2.063614    .483616     3.09   0.002     1.303023    3.268172
+                 0 6  |   1.897611    .430111     2.83   0.005      1.21643    2.960244
+                 0 7  |   1.299102   .3041082     1.12   0.264     .8207118    2.056343
+                 0 8  |   1.054751   .2735189     0.21   0.837     .6341635     1.75428
+                 0 9  |   .6800879   .2050592    -1.28   0.201      .376411    1.228762
+                 1 2  |   2.482008   1.668948     1.35   0.177     .6635644    9.283747
+                 1 3  |   2.875232   1.105252     2.75   0.006     1.352538    6.112187
+                 1 4  |   4.703082   1.353722     5.38   0.000     2.673848    8.272339
+                 1 5  |   4.198163   1.058743     5.69   0.000     2.559672    6.885479
+                 1 6  |   3.265126    .783372     4.93   0.000     2.039297    5.227807
+                 1 7  |   2.190057   .5618201     3.06   0.002     1.323983    3.622666
+                 1 8  |   1.765534   .5239964     1.92   0.056     .9862813    3.160469
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9853045   .0027336    -5.34   0.000     .9799561    .9906821
+               age10f |   2.004434   .1278042    10.91   0.000     1.768747    2.271527
+                black |   .8873498    .040734    -2.60   0.009     .8109279    .9709737
+                 aian |    .999351   .1904223    -0.00   0.997     .6876499    1.452342
+                asian |   .7548791   .0968033    -2.19   0.029       .58697    .9708204
+             hispanic |   .7321716   .0477696    -4.78   0.000     .6442038    .8321516
+   bornus_territories |   1.373377   .0926017     4.71   0.000     1.203208    1.567613
+        currentsmoker |   1.922523   .0850629    14.77   0.000     1.762679    2.096863
+         formersmoker |   1.592321   .0578464    12.81   0.000     1.482783     1.70995
+   ever_told_diabetes |   2.430679   .0909154    23.75   0.000     2.258702     2.61575
+ever_told_prediabetes |   1.757821   .1521026     6.52   0.000     1.483369    2.083051
+                  fpl |   .8685612   .0116385   -10.52   0.000     .8460254    .8916972
+                  ged |   .9801162    .082329    -0.24   0.811     .8312043    1.155706
+               hsgrad |   .8618957   .0362642    -3.53   0.000     .7936074    .9360602
+             somecoll |    .893336   .0409683    -2.46   0.014     .8164712     .977437
+                   aa |   .8868759   .0548392    -1.94   0.052     .7855582    1.001261
+               baplus |   .6675834   .0371408    -7.26   0.000     .5985538     .744574
+           unemployed |   1.630825     .19436     4.10   0.000     1.290813    2.060398
+    out_of_laborforce |   2.167042   .1085727    15.44   0.000     1.964171    2.390868
+            rent_home |   1.250904   .0474779     5.90   0.000     1.161141    1.347605
+             medicaid |   1.289582   .0561612     5.84   0.000     1.183976    1.404606
+       priv_insurance |   .9417017   .0385112    -1.47   0.142     .8690992    1.020369
+                bmi_c |   1.014069   .0025104     5.64   0.000     1.009156    1.019006
+                _cons |   .0001027   .0000454   -20.76   0.000     .0000431    .0002445
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store ami_asthma_episode_f
+
+. 
+. 
+. coefplot ami_asthma_episode_m || ami_asthma_episode_f , drop(_cons year_c age10 black aian asian  hispani
+> c bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef) xline(1) 
+> eform  xtitle(Odds ratio) graphregion(color(white)) bgcolor(white)
+
+. graph save "ami-asthma-episode-int", replace
+(note: file ami-asthma-episode-int.gph not found)
+(file ami-asthma-episode-int.gph saved)
+
+. graph export "ami-asthma-episode-int.tif", replace
+(file ami-asthma-episode-int.tif written in TIFF format)
+
+. 
+. 
+. 
+. 
+. svy: logistic angina asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territories c
+> urrentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unem
+> ployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==0, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     228,537
+Number of PSUs     =     1,936                 Population size   =  93,250,276
+                                               Design df         =       1,245
+                                               F(  37,   1209)   =      132.24
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+               angina | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   1.655108     .40231     2.07   0.038     1.027359    2.666434
+                 0 4  |   1.409028   .3186227     1.52   0.130     .9041712    2.195779
+                 0 5  |   2.128981   .5113548     3.15   0.002        1.329    3.410506
+                 0 6  |    2.24002   .6276473     2.88   0.004     1.292753    3.881399
+                 0 7  |   1.596499   .5295133     1.41   0.159     .8328652    3.060291
+                 0 8  |   1.092421   .4267802     0.23   0.821     .5076032    2.351017
+                 0 9  |    .720466   .3309704    -0.71   0.476     .2925531     1.77428
+                 1 2  |   .0160315   .0164591    -4.03   0.000      .002139     .120152
+                 1 3  |   .8594099   .6197888    -0.21   0.834     .2088017    3.537258
+                 1 4  |   4.490366    1.47486     4.57   0.000     2.357397    8.553244
+                 1 5  |   5.933507   1.727652     6.12   0.000     3.351406      10.505
+                 1 6  |   4.929062   1.514975     5.19   0.000     2.697044    9.008251
+                 1 7  |    2.53874   .9357997     2.53   0.012     1.231837    5.232186
+                 1 8  |   2.106392   .9306167     1.69   0.092     .8853339    5.011539
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9650188   .0029585   -11.61   0.000      .959232    .9708405
+               age10f |   1.777624   .1296833     7.89   0.000     1.540571    2.051154
+                black |   .5097022   .0344362    -9.98   0.000     .4464287    .5819436
+                 aian |   .5785288   .1125138    -2.81   0.005     .3950208     .847286
+                asian |   .8244889   .0946577    -1.68   0.093     .6582112    1.032772
+             hispanic |   .7479575   .0530148    -4.10   0.000      .650857    .8595444
+   bornus_territories |   1.236775   .0847834     3.10   0.002     1.081141    1.414813
+        currentsmoker |   1.622283   .0770589    10.19   0.000     1.477933     1.78073
+         formersmoker |   1.680882   .0635333    13.74   0.000     1.560747    1.810264
+   ever_told_diabetes |   2.063598   .0860723    17.37   0.000      1.90146    2.239562
+ever_told_prediabetes |   1.910335    .166163     7.44   0.000     1.610642    2.265792
+                  fpl |   .9566681   .0121531    -3.49   0.001     .9331198    .9808106
+                  ged |   1.157803   .1207116     1.41   0.160      .943632    1.420583
+               hsgrad |   .9678293   .0530318    -0.60   0.551     .8691848    1.077669
+             somecoll |   1.153488   .0680227     2.42   0.016     1.027467    1.294966
+                   aa |   1.065572    .079243     0.85   0.393     .9209167     1.23295
+               baplus |   .9432241    .057867    -0.95   0.341     .8362625    1.063866
+           unemployed |   1.230674   .1617578     1.58   0.115     .9509408    1.592694
+    out_of_laborforce |   1.877197   .0902127    13.10   0.000     1.708299    2.062795
+            rent_home |   1.083495   .0492512     1.76   0.078     .9910534    1.184558
+             medicaid |    1.26936   .0706096     4.29   0.000     1.138124    1.415728
+       priv_insurance |   .9398683   .0371537    -1.57   0.117     .8697323     1.01566
+                bmi_c |   1.031444   .0031566    10.12   0.000     1.025269    1.037655
+                _cons |   .0001788   .0000634   -24.35   0.000     .0000892    .0003583
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store angina_asthma_episode_m
+
+. 
+. svy: logistic angina asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territories c
+> urrentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unem
+> ployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==1, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     273,884
+Number of PSUs     =     1,937                 Population size   =  95,615,192
+                                               Design df         =       1,246
+                                               F(  37,   1210)   =      130.13
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+               angina | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .7167798   .1491759    -1.60   0.110     .4764989    1.078226
+                 0 4  |   .8663845   .1575136    -0.79   0.430     .6064667    1.237697
+                 0 5  |   1.022599   .1742865     0.13   0.896      .731964    1.428633
+                 0 6  |   .9284986    .169064    -0.41   0.684     .6495926    1.327154
+                 0 7  |   .6206685   .1286287    -2.30   0.022     .4133169    .9320434
+                 0 8  |     .45404   .1083645    -3.31   0.001     .2842776    .7251795
+                 0 9  |   .3459257   .0959428    -3.83   0.000     .2007575    .5960654
+                 1 2  |   1.420115   .6592219     0.76   0.450     .5712269    3.530516
+                 1 3  |   2.145391   .6134971     2.67   0.008     1.224221    3.759699
+                 1 4  |   2.116345   .4750107     3.34   0.001     1.362542    3.287179
+                 1 5  |   2.131406   .4193408     3.85   0.000     1.448888    3.135434
+                 1 6  |   2.103397    .418662     3.74   0.000     1.423419    3.108207
+                 1 7  |   1.587629   .3614159     2.03   0.043     1.015754    2.481471
+                 1 8  |   1.257433   .3569671     0.81   0.420     .7204537    2.194642
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9579787   .0030892   -13.31   0.000     .9519373    .9640585
+               age10f |   1.897071   .0921106    13.19   0.000     1.724702    2.086667
+                black |   .7716064   .0421557    -4.75   0.000     .6931805    .8589054
+                 aian |   .8241314   .1533325    -1.04   0.299     .5721021    1.187188
+                asian |   .8264753   .1071657    -1.47   0.142     .6408417    1.065882
+             hispanic |   .8895619   .0647377    -1.61   0.108     .7712052    1.026083
+   bornus_territories |   1.269107   .0920166     3.29   0.001     1.100834    1.463102
+        currentsmoker |   1.601564   .0762284     9.90   0.000     1.458783    1.758319
+         formersmoker |   1.308018   .0497104     7.07   0.000     1.214039    1.409271
+   ever_told_diabetes |   2.138073   .0949065    17.12   0.000     1.959756    2.332615
+ever_told_prediabetes |   1.826172   .1823847     6.03   0.000      1.50123    2.221448
+                  fpl |    .904595   .0124344    -7.29   0.000     .8805263    .9293216
+                  ged |   1.346411   .1244813     3.22   0.001     1.123063    1.614178
+               hsgrad |   .8922596   .0453763    -2.24   0.025     .8075341    .9858744
+             somecoll |   .9733155   .0524636    -0.50   0.616     .8756441    1.081881
+                   aa |   1.088333   .0769708     1.20   0.232     .9473338    1.250317
+               baplus |   .6992279   .0436264    -5.73   0.000     .6186695    .7902758
+           unemployed |   1.312862   .1659155     2.15   0.031     1.024572    1.682271
+    out_of_laborforce |   2.045775   .0995411    14.71   0.000     1.859519    2.250686
+            rent_home |   1.202274   .0482391     4.59   0.000     1.111264    1.300737
+             medicaid |   1.252903   .0637542     4.43   0.000     1.133866    1.384437
+       priv_insurance |   .9569599   .0385813    -1.09   0.275     .8841845    1.035725
+                bmi_c |   1.021705   .0024591     8.92   0.000     1.016892    1.026541
+                _cons |   .0002978   .0000842   -28.71   0.000      .000171    .0005187
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store angina_asthma_episode_f
+
+. 
+. 
+. coefplot angina_asthma_episode_m || angina_asthma_episode_f , drop(_cons year_c age10 black aian asian  h
+> ispanic bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hs
+> grad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef) xli
+> ne(1) eform  xtitle(Odds ratio) graphregion(color(white)) bgcolor(white)
+
+. graph save "angina-asthma-episode-int", replace
+(note: file angina-asthma-episode-int.gph not found)
+(file angina-asthma-episode-int.gph saved)
+
+. graph export "angina-asthma-episode-int.tif", replace
+(file angina-asthma-episode-int.tif written in TIFF format)
+
+. 
+. 
+. 
+. 
+. svy: logistic heart_disease asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territ
+> ories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa bapl
+> us unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==0, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     228,537
+Number of PSUs     =     1,936                 Population size   =  93,250,276
+                                               Design df         =       1,245
+                                               F(  37,   1209)   =      233.38
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+        heart_disease | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .7917194   .0612081    -3.02   0.003     .6803001    .9213869
+                 0 4  |   .6691446   .0771299    -3.49   0.001     .5337152    .8389391
+                 0 5  |   .7812228   .1240419    -1.55   0.120     .5721242    1.066742
+                 0 6  |   .8701032   .1804792    -0.67   0.502     .5792158    1.307077
+                 0 7  |   .9100571   .2316889    -0.37   0.711     .5522716    1.499632
+                 0 8  |   .9573292   .2925256    -0.14   0.887     .5256679    1.743457
+                 0 9  |   .8903242   .3168185    -0.33   0.744     .4429519    1.789533
+                 1 2  |   1.354024   .3698434     1.11   0.267      .792318    2.313945
+                 1 3  |   1.430473   .2617054     1.96   0.051     .9990809    2.048136
+                 1 4  |   1.349068   .2553467     1.58   0.114     .9306036    1.955703
+                 1 5  |   1.647652   .3110918     2.64   0.008     1.137613    2.386363
+                 1 6  |   1.435964   .3293707     1.58   0.115     .9156114    2.252038
+                 1 7  |   1.326127   .3693328     1.01   0.311     .7678749    2.290232
+                 1 8  |   1.333865   .4457852     0.86   0.389     .6924029    2.569598
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   1.001065   .0019461     0.55   0.584      .997254     1.00489
+               age10f |   1.340414   .0683932     5.74   0.000     1.212732    1.481538
+                black |   .6966466   .0251923   -10.00   0.000      .648935    .7478661
+                 aian |   .9711824   .1375589    -0.21   0.836     .7355611     1.28228
+                asian |   .6623162   .0453267    -6.02   0.000     .5791023    .7574875
+             hispanic |    .597269    .028172   -10.93   0.000     .5444794    .6551768
+   bornus_territories |   1.581008   .0726259     9.97   0.000     1.444757    1.730109
+        currentsmoker |     1.2034   .0371332     6.00   0.000      1.13271      1.2785
+         formersmoker |   1.362309   .0337004    12.50   0.000     1.297772    1.430056
+   ever_told_diabetes |   1.597445   .0474509    15.77   0.000     1.507013    1.693304
+ever_told_prediabetes |   1.501872   .0961431     6.35   0.000     1.324615    1.702848
+                  fpl |   .9928984   .0077698    -0.91   0.363     .9777713    1.008259
+                  ged |   1.166191   .0794117     2.26   0.024     1.020354    1.332872
+               hsgrad |   .9503482   .0340482    -1.42   0.155     .8858435     1.01955
+             somecoll |   1.121421    .042704     3.01   0.003     1.040694    1.208409
+                   aa |   1.079464   .0485232     1.70   0.089     .9883448    1.178984
+               baplus |   1.107829   .0417279     2.72   0.007     1.028916    1.192794
+           unemployed |   1.157838    .073185     2.32   0.021     1.022804    1.310699
+    out_of_laborforce |   1.637617   .0492716    16.39   0.000      1.54375    1.737191
+            rent_home |   1.057689   .0289255     2.05   0.040     1.002437    1.115987
+             medicaid |   1.455539   .0537156    10.17   0.000      1.35388     1.56483
+       priv_insurance |   1.000993   .0263147     0.04   0.970     .9506759    1.053974
+                bmi_c |   1.015029   .0021595     7.01   0.000     1.010801    1.019275
+                _cons |   .0060428   .0008959   -34.46   0.000     .0045177    .0080827
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store hd_asthma_episode_m
+
+. 
+. svy: logistic heart_disease asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_territ
+> ories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa bapl
+> us unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==1, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     273,884
+Number of PSUs     =     1,937                 Population size   =  95,615,192
+                                               Design df         =       1,246
+                                               F(  37,   1210)   =      209.69
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+        heart_disease | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .8865342   .0568158    -1.88   0.060     .7817917     1.00531
+                 0 4  |    .827378   .0653126    -2.40   0.017     .7086723    .9659675
+                 0 5  |   .8077216   .0862028    -2.00   0.046     .6551342    .9958481
+                 0 6  |   .7258052   .0980501    -2.37   0.018     .5568244     .946067
+                 0 7  |   .6527488   .1081105    -2.58   0.010     .4716611    .9033626
+                 0 8  |   .6356357   .1249538    -2.31   0.021     .4322307    .9347617
+                 0 9  |   .6076797   .1401869    -2.16   0.031     .3864723    .9555009
+                 1 2  |    2.11344   .3097878     5.11   0.000     1.585257    2.817606
+                 1 3  |   1.864711   .1842672     6.31   0.000     1.536087    2.263641
+                 1 4  |   1.766297   .1972922     5.09   0.000      1.41871    2.199044
+                 1 5  |   1.471358   .1740877     3.26   0.001     1.166563    1.855789
+                 1 6  |   1.449969   .2126088     2.53   0.011     1.087491    1.933266
+                 1 7  |   1.243974   .2250037     1.21   0.228     .8723698    1.773871
+                 1 8  |   1.237969   .2811487     0.94   0.347     .7928841    1.932901
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9915766   .0017142    -4.89   0.000     .9882193    .9949453
+               age10f |    1.42367   .0481167    10.45   0.000     1.332333    1.521269
+                black |   .7276361   .0211021   -10.96   0.000     .6873923    .7702361
+                 aian |   .9543593   .1026922    -0.43   0.664     .7727354    1.178672
+                asian |   .6214514   .0404931    -7.30   0.000     .5468772    .7061948
+             hispanic |   .5928725   .0214298   -14.46   0.000      .552286    .6364416
+   bornus_territories |   1.507294   .0557187    11.10   0.000     1.401851    1.620668
+        currentsmoker |   1.119636   .0293225     4.31   0.000     1.063562    1.178667
+         formersmoker |   1.215624   .0254865     9.31   0.000     1.166638    1.266668
+   ever_told_diabetes |   1.656746    .042005    19.91   0.000     1.576354    1.741238
+ever_told_prediabetes |    1.53542   .0950858     6.92   0.000     1.359761    1.733771
+                  fpl |   .9814839   .0069581    -2.64   0.008     .9679275    .9952301
+                  ged |   1.183093   .0662014     3.00   0.003     1.060089    1.320368
+               hsgrad |    .914659   .0255963    -3.19   0.001      .865796    .9662797
+             somecoll |     1.1033   .0342109     3.17   0.002     1.038183      1.1725
+                   aa |   1.154743   .0435432     3.82   0.000       1.0724    1.243408
+               baplus |    1.06349    .035299     1.85   0.064     .9964442    1.135046
+           unemployed |   1.087953   .0642972     1.43   0.154     .9688484    1.221699
+    out_of_laborforce |   1.406726   .0326202    14.72   0.000     1.344163      1.4722
+            rent_home |   1.077251   .0253957     3.16   0.002     1.028563    1.128244
+             medicaid |   1.374617   .0410742    10.65   0.000     1.296351    1.457608
+       priv_insurance |   1.030625   .0253365     1.23   0.220     .9820978     1.08155
+                bmi_c |   1.012236   .0014538     8.47   0.000     1.009388    1.015092
+                _cons |   .0070486   .0007926   -44.06   0.000     .0056532    .0087884
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store hd_asthma_episode_f
+
+. 
+. 
+. coefplot hd_asthma_episode_m || hd_asthma_episode_f , drop(_cons year_c age10 black aian asian  hispanic 
+> bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad som
+> ecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef) xline(1) ef
+> orm  xtitle(Odds ratio) graphregion(color(white)) bgcolor(white)
+
+. graph save "hd-asthma-episode-int", replace
+(note: file hd-asthma-episode-int.gph not found)
+(file hd-asthma-episode-int.gph saved)
+
+. graph export "hd-asthma-episode-int.tif", replace
+(file hd-asthma-episode-int.tif written in TIFF format)
+
+. 
+. 
+. *** Any heart disease and asthma episode
+
+. 
+. 
+. svy: logistic any_heart_disease asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa 
+> baplus unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==0, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     228,537
+Number of PSUs     =     1,936                 Population size   =  93,250,276
+                                               Design df         =       1,245
+                                               F(  37,   1209)   =      513.83
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+    any_heart_disease | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .7814474   .0576481    -3.34   0.001     .6761525    .9031394
+                 0 4  |   .7167783   .0774806    -3.08   0.002     .5798079    .8861057
+                 0 5  |   .8791064   .1316376    -0.86   0.390     .6553273    1.179301
+                 0 6  |   1.053035   .2073822     0.26   0.793     .7155598    1.549671
+                 0 7  |   1.095298    .266309     0.37   0.708     .6797847    1.764792
+                 0 8  |   1.130173   .3287536     0.42   0.674     .6387041    1.999816
+                 0 9  |   .9794295   .3305163    -0.06   0.951     .5051832     1.89888
+                 1 2  |   1.352111   .3548099     1.15   0.251     .8080338    2.262533
+                 1 3  |   1.308805   .2274824     1.55   0.122     .9306457    1.840626
+                 1 4  |   1.383843    .236527     1.90   0.058      .989595    1.935156
+                 1 5  |   1.999763   .3546816     3.91   0.000     1.412086    2.832019
+                 1 6  |   1.879104   .4084504     2.90   0.004     1.226733    2.878405
+                 1 7  |   1.704908    .451688     2.01   0.044     1.013839    2.867032
+                 1 8  |   1.594093   .5280157     1.41   0.159      .832326    3.053049
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9948061   .0015468    -3.35   0.001     .9917761    .9978453
+               age10f |   1.486066   .0722883     8.14   0.000     1.350802    1.634874
+                black |   .6802752   .0197485   -13.27   0.000     .6426139    .7201436
+                 aian |   .9374407   .1091022    -0.56   0.579     .7460741    1.177893
+                asian |   .6852834   .0383624    -6.75   0.000     .6140069    .7648339
+             hispanic |   .6305709   .0221679   -13.12   0.000     .5885462    .6755964
+   bornus_territories |   1.474119   .0515828    11.09   0.000     1.376316    1.578873
+        currentsmoker |   1.409352   .0333941    14.48   0.000     1.345336    1.476413
+         formersmoker |   1.481052   .0295145    19.71   0.000     1.424266    1.540103
+   ever_told_diabetes |   2.006981   .0466169    29.99   0.000     1.917577    2.100553
+ever_told_prediabetes |   1.616336   .0853006     9.10   0.000     1.457359    1.792655
+                  fpl |   .9722799   .0062228    -4.39   0.000     .9601478    .9845652
+                  ged |   1.131354   .0627734     2.22   0.026     1.014667     1.26146
+               hsgrad |   .9086538   .0270049    -3.22   0.001     .8571886    .9632091
+             somecoll |   1.043426   .0321166     1.38   0.168     .9822821    1.108376
+                   aa |    .993215   .0383641    -0.18   0.860     .9207306    1.071406
+               baplus |   .9490872   .0286269    -1.73   0.083     .8945542    1.006944
+           unemployed |   1.131893   .0576066     2.43   0.015     1.024336    1.250745
+    out_of_laborforce |   1.687388   .0404827    21.81   0.000     1.609806    1.768709
+            rent_home |   1.075991   .0237577     3.32   0.001     1.030376    1.123624
+             medicaid |   1.390618   .0417141    10.99   0.000     1.311142    1.474912
+       priv_insurance |   .9712778   .0207062    -1.37   0.172     .9314927    1.012762
+                bmi_c |   1.021689   .0017512    12.52   0.000     1.018259     1.02513
+                _cons |   .0054202   .0007102   -39.82   0.000     .0041915    .0070091
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store anyhd_asthma_episode_m
+
+. 
+. svy: logistic any_heart_disease asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa 
+> baplus unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==1, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     273,884
+Number of PSUs     =     1,937                 Population size   =  95,615,192
+                                               Design df         =       1,246
+                                               F(  37,   1210)   =      386.89
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+    any_heart_disease | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .8030297   .0499694    -3.53   0.000      .710744    .9072982
+                 0 4  |   .7003411   .0532448    -4.69   0.000     .6032988    .8129929
+                 0 5  |    .647834   .0652267    -4.31   0.000     .5317137    .7893137
+                 0 6  |   .5680633   .0722951    -4.44   0.000       .44255    .7291738
+                 0 7  |   .4616972   .0725505    -4.92   0.000     .3392114    .6284113
+                 0 8  |    .448152   .0834122    -4.31   0.000     .3110582    .6456677
+                 0 9  |   .3878157   .0847052    -4.34   0.000     .2526554    .5952814
+                 1 2  |   2.130635   .3215982     5.01   0.000     1.584542    2.864932
+                 1 3  |   1.686947   .1552212     5.68   0.000     1.408328    2.020688
+                 1 4  |   1.606941   .1646868     4.63   0.000     1.314256    1.964807
+                 1 5  |   1.267821    .141535     2.13   0.034     1.018452    1.578249
+                 1 6  |   1.136752   .1580155     0.92   0.357     .8654228    1.493148
+                 1 7  |   .9047168   .1513603    -0.60   0.550      .651579    1.256198
+                 1 8  |    .911893   .1873653    -0.45   0.654     .6093667    1.364612
+                 1 9  |          1  (omitted)
+                      |
+               year_c |    .986757   .0015324    -8.58   0.000     .9837552    .9897679
+               age10f |   1.650989   .0522333    15.85   0.000     1.551629    1.756711
+                black |   .7884735   .0192259    -9.75   0.000     .7516427     .827109
+                 aian |   .9499212   .0936667    -0.52   0.602     .7828409    1.152661
+                asian |   .6534503   .0364707    -7.62   0.000     .5856777    .7290653
+             hispanic |   .6595252   .0205348   -13.37   0.000     .6204444    .7010677
+   bornus_territories |   1.397318   .0457998    10.21   0.000     1.310292    1.490123
+        currentsmoker |   1.249794   .0279382     9.97   0.000     1.196168    1.305825
+         formersmoker |   1.278281   .0236786    13.25   0.000     1.232661     1.32559
+   ever_told_diabetes |   2.016979   .0452731    31.26   0.000     1.930086    2.107784
+ever_told_prediabetes |   1.612199   .0867499     8.88   0.000     1.450682    1.791699
+                  fpl |   .9569611   .0059661    -7.06   0.000     .9453277    .9687377
+                  ged |   1.092191   .0536611     1.79   0.073     .9918292    1.202708
+               hsgrad |   .8640515   .0204171    -6.18   0.000       .82491    .9050502
+             somecoll |   .9709838   .0259073    -1.10   0.270     .9214644    1.023164
+                   aa |   1.026022   .0329695     0.80   0.424     .9633366    1.092786
+               baplus |   .9078309    .025332    -3.47   0.001     .8594687    .9589145
+           unemployed |   1.100051   .0591387     1.77   0.076     .9899377    1.222413
+    out_of_laborforce |   1.516056   .0315224    20.01   0.000     1.455457    1.579177
+            rent_home |   1.127452   .0225471     6.00   0.000     1.084075    1.172566
+             medicaid |   1.405139   .0352146    13.57   0.000     1.337723    1.475952
+       priv_insurance |   1.014517   .0214074     0.68   0.495     .9733761    1.057397
+                bmi_c |   1.015594   .0012668    12.41   0.000     1.013112    1.018082
+                _cons |   .0061221   .0006125   -50.94   0.000     .0050311    .0074497
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store anyhd_asthma_episode_f
+
+. 
+. 
+. coefplot anyhd_asthma_episode_m || anyhd_asthma_episode_f , drop(_cons year_c age10 black aian asian  his
+> panic bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgr
+> ad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef) xline
+> (1) eform  xtitle(Odds ratio) graphregion(color(white)) bgcolor(white)
+
+. graph save "anyhd-asthma-episode-int", replace
+(note: file anyhd-asthma-episode-int.gph not found)
+(file anyhd-asthma-episode-int.gph saved)
+
+. graph export "anyhd-asthma-episode-int.tif", replace
+(file anyhd-asthma-episode-int.tif written in TIFF format)
+
+. cd "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/plots/inter
+> action plots"
+/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/plots/interaction
+>  plots
+
+. **** CHD and ever asthma 
+
+. 
+. svy: logistic chd asthma_ever_told#i.age10f year_c age10 black aian asian  hispanic bornus_territories cu
+> rrentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemp
+> loyed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==0, or
+(running logistic on estimation sample)
+
+note: 1.asthma_ever_told#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     228,537
+Number of PSUs     =     1,936                 Population size   =  93,250,276
+                                               Design df         =       1,245
+                                               F(  37,   1209)   =      252.66
+                                               Prob > F          =      0.0000
+
+-----------------------------------------------------------------------------------------
+                        |             Linearized
+                    chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+------------------------+----------------------------------------------------------------
+asthma_ever_told#age10f |
+                   0 3  |   .7904846   .1869654    -0.99   0.320     .4970171    1.257232
+                   0 4  |   1.221247   .2031087     1.20   0.230     .8812527    1.692415
+                   0 5  |   2.262663   .3306576     5.59   0.000     1.698663    3.013925
+                   0 6  |   2.863123   .4033903     7.47   0.000     2.171682    3.774714
+                   0 7  |   2.465948    .359826     6.19   0.000     1.852071    3.283299
+                   0 8  |   1.859143   .3045639     3.79   0.000     1.348136    2.563846
+                   0 9  |   1.227737   .2395807     1.05   0.293      .837221    1.800406
+                   1 2  |   1.576895   .6974371     1.03   0.303     .6621594    3.755284
+                   1 3  |   1.043135   .3137864     0.14   0.888     .5781498     1.88209
+                   1 4  |   1.694427   .3728101     2.40   0.017     1.100419    2.609081
+                   1 5  |   3.312352    .540279     7.34   0.000     2.405257    4.561539
+                   1 6  |   3.498491   .5310694     8.25   0.000     2.597424    4.712143
+                   1 7  |   2.595514   .4138247     5.98   0.000     1.898353    3.548704
+                   1 8  |   2.436411    .464601     4.67   0.000     1.676009    3.541806
+                   1 9  |          1  (omitted)
+                        |
+                 year_c |    .995557   .0020035    -2.21   0.027     .9916341    .9994955
+                 age10f |   1.835393   .0738358    15.10   0.000     1.696105    1.986119
+                  black |   .6815253   .0274566    -9.52   0.000     .6297328    .7375776
+                   aian |   .9351537   .1308853    -0.48   0.632     .7106109    1.230649
+                  asian |    .826375   .0609572    -2.59   0.010     .7150354    .9550516
+               hispanic |   .6833957   .0311772    -8.34   0.000     .6248874    .7473822
+     bornus_territories |   1.216604   .0580614     4.11   0.000     1.107865    1.336016
+          currentsmoker |   1.462641   .0506102    10.99   0.000     1.366645    1.565379
+           formersmoker |   1.527024   .0411112    15.72   0.000     1.448462    1.609847
+     ever_told_diabetes |   2.264176   .0648653    28.53   0.000     2.140429    2.395077
+  ever_told_prediabetes |   1.747668   .1092153     8.93   0.000     1.546016    1.975623
+                    fpl |   .9995014   .0093153    -0.05   0.957     .9813919    1.017945
+                    ged |   1.142216   .0817319     1.86   0.063     .9926154    1.314365
+                 hsgrad |    .965561   .0368338    -0.92   0.358     .8959358    1.040597
+               somecoll |   1.059228   .0449932     1.35   0.176      .974535    1.151281
+                     aa |   .9936431   .0508899    -0.12   0.901     .8986557    1.098671
+                 baplus |   .9687139   .0395085    -0.78   0.436     .8942231     1.04941
+             unemployed |   1.163534   .1146933     1.54   0.125     .9589406    1.411778
+      out_of_laborforce |   1.755718   .0610874    16.18   0.000     1.639872    1.879749
+              rent_home |   1.071875   .0340978     2.18   0.029     1.007025    1.140902
+               medicaid |   1.369123   .0561903     7.66   0.000     1.263206    1.483921
+         priv_insurance |   .9847134   .0298336    -0.51   0.611     .9278893    1.045017
+                  bmi_c |   1.028321    .002409    11.92   0.000     1.023606    1.033058
+                  _cons |   .0001978   .0000561   -30.08   0.000     .0001134    .0003449
+-----------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_asthma_ever_m
+
+. 
+. svy: logistic chd asthma_ever_told#i.age10f year_c age10 black aian asian  hispanic bornus_territories cu
+> rrentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemp
+> loyed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==1, or
+(running logistic on estimation sample)
+
+note: 1.asthma_ever_told#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     273,884
+Number of PSUs     =     1,937                 Population size   =  95,615,192
+                                               Design df         =       1,246
+                                               F(  37,   1210)   =      198.40
+                                               Prob > F          =      0.0000
+
+-----------------------------------------------------------------------------------------
+                        |             Linearized
+                    chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+------------------------+----------------------------------------------------------------
+asthma_ever_told#age10f |
+                   0 3  |   .8532118   .2394917    -0.57   0.572      .491923    1.479846
+                   0 4  |   .9866212   .2236607    -0.06   0.953     .6324131    1.539217
+                   0 5  |   1.440028   .2575657     2.04   0.042     1.013854    2.045343
+                   0 6  |   1.543058    .226728     2.95   0.003     1.156618    2.058612
+                   0 7  |   1.163234   .1399944     1.26   0.209     .9185991    1.473018
+                   0 8  |   .9986243   .1145413    -0.01   0.990      .797398    1.250631
+                   0 9  |   .7333914   .0905189    -2.51   0.012     .5756706    .9343242
+                   1 2  |   3.273677   1.515985     2.56   0.011       1.3197    8.120755
+                   1 3  |   1.493106   .4950955     1.21   0.227     .7790551    2.861627
+                   1 4  |   2.155617   .5493495     3.01   0.003     1.307482    3.553918
+                   1 5  |   2.394457   .4620548     4.52   0.000     1.639806    3.496406
+                   1 6  |   2.094363   .3286546     4.71   0.000      1.53939    2.849412
+                   1 7  |   1.561861   .2072591     3.36   0.001     1.203866    2.026314
+                   1 8  |   1.432882   .1842804     2.80   0.005     1.113352    1.844117
+                   1 9  |          1  (omitted)
+                        |
+                 year_c |   .9977787   .0024335    -0.91   0.362     .9930159    1.002564
+                 age10f |   1.930985   .0884844    14.36   0.000     1.764965    2.112622
+                  black |   .9858072    .037929    -0.37   0.710     .9141346    1.063099
+                   aian |   .7433604   .1194378    -1.85   0.065     .5423773     1.01882
+                  asian |   .8966411   .0825722    -1.18   0.236     .7484362    1.074193
+               hispanic |   .8818437   .0461998    -2.40   0.017     .7957082    .9773034
+     bornus_territories |   1.066671   .0558625     1.23   0.218     .9625177    1.182094
+          currentsmoker |   1.517889   .0596304    10.62   0.000     1.405297    1.639503
+           formersmoker |   1.468243   .0460609    12.24   0.000     1.380603    1.561447
+     ever_told_diabetes |   2.456945   .0822332    26.86   0.000     2.300796     2.62369
+  ever_told_prediabetes |   1.680482   .1358352     6.42   0.000     1.434048    1.969266
+                    fpl |   .9393725   .0105298    -5.58   0.000     .9189398    .9602595
+                    ged |   .9848002   .0781086    -0.19   0.847     .8428884    1.150605
+                 hsgrad |    .885826   .0353186    -3.04   0.002     .8191762    .9578986
+               somecoll |   .8430352   .0381697    -3.77   0.000     .7713807    .9213457
+                     aa |   .9227775   .0477941    -1.55   0.121     .8336182    1.021473
+                 baplus |   .7325823   .0375404    -6.07   0.000      .662514    .8100611
+             unemployed |   1.231587   .1524756     1.68   0.093      .966007    1.570182
+      out_of_laborforce |   2.053735   .0891368    16.58   0.000     1.886099    2.236271
+              rent_home |   1.195961    .039865     5.37   0.000     1.120253    1.276785
+               medicaid |   1.329647   .0562169     6.74   0.000     1.223807    1.444641
+         priv_insurance |   .9520105   .0325512    -1.44   0.151     .8902441    1.018062
+                  bmi_c |   1.020498   .0021462     9.65   0.000     1.016296    1.024718
+                  _cons |   .0001786   .0000694   -22.21   0.000     .0000833    .0003828
+-----------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_asthma_ever_f
+
+. 
+. 
+. coefplot chd_asthma_ever_m || chd_asthma_ever_f , drop(_cons year_c age10 black aian asian  hispanic born
+> us_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecol
+> l aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef) xline(1) eform 
+>  xtitle(Odds ratio) graphregion(color(white)) bgcolor(white)
+
+. graph save "chd-asthma-ever-int", replace
+(note: file chd-asthma-ever-int.gph not found)
+(file chd-asthma-ever-int.gph saved)
+
+. graph export "chd-asthma-ever-int.tif", replace
+(file chd-asthma-ever-int.tif written in TIFF format)
+
+. 
+. svy: logistic chd hayfever12m#i.age10f year_c age10 black aian asian  hispanic bornus_territories current
+> smoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemployed
+>  out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==0, or
+(running logistic on estimation sample)
+
+note: 1.hayfever12m#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     228,537
+Number of PSUs     =     1,936                 Population size   =  93,250,276
+                                               Design df         =       1,245
+                                               F(  37,   1209)   =      260.37
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+   hayfever12m#age10f |
+                 0 3  |   .6543145   .1440931    -1.93   0.054     .4247688    1.007907
+                 0 4  |   .9994665   .1595948    -0.00   0.997     .7306613    1.367163
+                 0 5  |    1.77836   .2619765     3.91   0.000     1.331999    2.374298
+                 0 6  |    2.06428   .3030418     4.94   0.000     1.547705     2.75327
+                 0 7  |   1.626846   .2604139     3.04   0.002     1.188392    2.227067
+                 0 8  |   1.158975   .2076548     0.82   0.410     .8154826     1.64715
+                 0 9  |   .6942222   .1448643    -1.75   0.081     .4610036    1.045425
+                 1 2  |   .8853439   .5554277    -0.19   0.846     .2585735    3.031377
+                 1 3  |    1.53747   .5999822     1.10   0.271     .7150077    3.305999
+                 1 4  |   1.251738   .3202275     0.88   0.380     .7577777    2.067688
+                 1 5  |   1.877555   .3236962     3.65   0.000     1.338752    2.633208
+                 1 6  |   2.115063   .3403006     4.66   0.000     1.542541    2.900078
+                 1 7  |   1.830226   .3302164     3.35   0.001     1.284631    2.607542
+                 1 8  |   1.678586   .3517529     2.47   0.014     1.112752    2.532148
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9957381   .0019985    -2.13   0.034     .9918249    .9996667
+               age10f |   1.953213   .0745998    17.53   0.000     1.812207    2.105191
+                black |   .6821957   .0275179    -9.48   0.000       .63029    .7383759
+                 aian |    .929039    .130413    -0.52   0.600     .7053928    1.223593
+                asian |   .8302205   .0613498    -2.52   0.012     .7181779    .9597428
+             hispanic |   .6800369   .0310596    -8.44   0.000     .6217523    .7437852
+   bornus_territories |   1.225783   .0586235     4.26   0.000     1.116002    1.346363
+        currentsmoker |   1.467498   .0508938    11.06   0.000     1.370972     1.57082
+         formersmoker |   1.533351   .0412969    15.87   0.000     1.454435    1.616549
+   ever_told_diabetes |   2.273523   .0651988    28.64   0.000     2.149143    2.405101
+ever_told_prediabetes |   1.755428   .1099097     8.99   0.000     1.552517    1.984859
+                  fpl |   .9981416   .0093177    -0.20   0.842     .9800279     1.01659
+                  ged |   1.145242   .0818941     1.90   0.058     .9953367    1.317723
+               hsgrad |   .9629798   .0367629    -0.99   0.323     .8934905    1.037873
+             somecoll |   1.055682   .0450209     1.27   0.204     .9709508    1.147807
+                   aa |   .9915498   .0508524    -0.17   0.869     .8966387    1.096507
+               baplus |   .9661904   .0395247    -0.84   0.401      .891678    1.046929
+           unemployed |   1.166963   .1159449     1.55   0.120      .960291    1.418115
+    out_of_laborforce |   1.768543   .0613587    16.43   0.000     1.652171    1.893112
+            rent_home |   1.078277   .0341745     2.38   0.018     1.013273    1.147451
+             medicaid |   1.382365   .0567407     7.89   0.000     1.275411    1.498288
+       priv_insurance |   .9843611   .0298154    -0.52   0.603      .927571    1.044628
+                bmi_c |   1.029076    .002414    12.22   0.000     1.024351    1.033823
+                _cons |   .0001865   .0000483   -33.15   0.000     .0001122    .0003101
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_hayfever12m_m
+
+. 
+. svy: logistic chd hayfever12m#i.age10f year_c age10 black aian asian  hispanic bornus_territories current
+> smoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecoll aa baplus unemployed
+>  out_of_laborforce rent_home  medicaid priv_insurance bmi_c if female==1, or
+(running logistic on estimation sample)
+
+note: 1.hayfever12m#2b.age10f != 0 predicts failure perfectly
+      1.hayfever12m#2b.age10f dropped and 1217 obs not used
+note: 1.hayfever12m#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     272,667
+Number of PSUs     =     1,937                 Population size   =  95,023,043
+                                               Design df         =       1,246
+                                               F(  36,   1211)   =      207.42
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+   hayfever12m#age10f |
+                 0 3  |   .6689959   .1560335    -1.72   0.085     .4233506    1.057175
+                 0 4  |   .9184128   .1725774    -0.45   0.651     .6352351    1.327826
+                 0 5  |   1.371835   .2129246     2.04   0.042     1.011713    1.860144
+                 0 6  |   1.508213   .2102714     2.95   0.003     1.147295    1.982671
+                 0 7  |   1.217896    .160627     1.49   0.135     .9402367    1.577552
+                 0 8  |   1.172271   .1647823     1.13   0.258     .8897356    1.544525
+                 0 9  |   .9344051   .1523161    -0.42   0.677      .678652     1.28654
+                 1 2  |          1  (empty)
+                 1 3  |   1.268199   .3932367     0.77   0.444     .6902311    2.330131
+                 1 4  |   1.276515   .3078045     1.01   0.312     .7953847    2.048683
+                 1 5  |   1.727684   .3219682     2.93   0.003     1.198621    2.490274
+                 1 6  |   1.984677   .3165646     4.30   0.000     1.451402     2.71389
+                 1 7  |   1.703048    .254148     3.57   0.000     1.270801    2.282318
+                 1 8  |   1.357607    .218937     1.90   0.058      .989396    1.862851
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9984234   .0024333    -0.65   0.517     .9936611    1.003209
+               age10f |   1.773962   .0736391    13.81   0.000     1.635218    1.924478
+                black |   .9818402   .0378035    -0.48   0.634     .9104065    1.058879
+                 aian |   .7541744   .1214158    -1.75   0.080     .5499234    1.034288
+                asian |   .9002988   .0829776    -1.14   0.255      .751377    1.078737
+             hispanic |   .8790182    .046258    -2.45   0.014     .7927936    .9746206
+   bornus_territories |   1.089798   .0570271     1.64   0.101     .9834697    1.207623
+        currentsmoker |   1.547974   .0609089    11.10   0.000     1.432975    1.672203
+         formersmoker |   1.487258   .0464166    12.72   0.000     1.398927    1.581167
+   ever_told_diabetes |    2.49408   .0836372    27.25   0.000     2.335276    2.663684
+ever_told_prediabetes |   1.697315   .1373783     6.54   0.000     1.448106    1.989411
+                  fpl |   .9371959   .0105028    -5.79   0.000     .9168157    .9580292
+                  ged |    .996348   .0794132    -0.05   0.963     .8521198    1.164988
+               hsgrad |   .8797272   .0350643    -3.21   0.001     .8135564    .9512799
+             somecoll |     .84234   .0382716    -3.78   0.000     .7705053     .920872
+                   aa |   .9220247   .0475825    -1.57   0.116     .8332442    1.020265
+               baplus |   .7289258   .0373813    -6.17   0.000     .6591571    .8060792
+           unemployed |   1.236107   .1528382     1.71   0.087     .9698556    1.575452
+    out_of_laborforce |   2.086168   .0902932    16.99   0.000     1.916336     2.27105
+            rent_home |   1.208038   .0402883     5.67   0.000     1.131528    1.289721
+             medicaid |   1.358441   .0566539     7.35   0.000     1.251719    1.474262
+       priv_insurance |   .9526397   .0325511    -1.42   0.156     .8908721     1.01869
+                bmi_c |   1.022843   .0021522    10.73   0.000      1.01863    1.027074
+                _cons |    .000278   .0000897   -25.37   0.000     .0001476    .0005236
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_hayfever12m_f
+
+. 
+. 
+. coefplot chd_hayfever12m_m || chd_hayfever12m_f , drop(_cons year_c age10 black aian asian  hispanic born
+> us_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad somecol
+> l aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef) xline(1) eform 
+>  xtitle(Odds ratio) graphregion(color(white)) bgcolor(white)
+
+. graph save "chd-hayfever12m-int", replace
+(note: file chd-hayfever12m-int.gph not found)
+(file chd-hayfever12m-int.gph saved)
+
+. graph export "chd-hayfever12m-int.tif", replace
+(file chd-hayfever12m-int.tif written in TIFF format)
+
+. 
+. 
+. exit, clear

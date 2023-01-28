@@ -1,0 +1,1828 @@
+------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sa
+> i NHIS/log-june4.txt
+  log type:  text
+ opened on:   4 Jun 2022, 08:21:55
+
+. 
+. 
+. use "/Users/jerosenbaum/OneDrive - Downstate Medical Center/projects/Sai NHIS/nhis_00009.dta"
+
+. 
+. keep if age>=18
+(491,469 observations deleted)
+
+. 
+. gen chd=cheartdiev==2
+
+. replace chd=0 if cheartdiev==1
+(0 real changes made)
+
+. replace chd=. if cheartdiev==7 | cheartdiev==9
+(1,176 real changes made, 1,176 to missing)
+
+. 
+. gen angina = angipecev==2
+
+. replace angina=0 if angipecev==1
+(0 real changes made)
+
+. replace angina=. if angipecev>=7
+(1,180 real changes made, 1,180 to missing)
+
+. 
+. gen ami=heartattev==2
+
+. replace ami=0 if heartattev==1
+(0 real changes made)
+
+. replace ami=. if heartattev==7 | heartattev==9
+(700 real changes made, 700 to missing)
+
+. 
+. gen heart_disease=heartconev==2
+
+. replace heart_disease=0 if heartconev==1
+(0 real changes made)
+
+. replace heart_disease=. if heartconev==7 | heartconev==9
+(811 real changes made, 811 to missing)
+
+. 
+. gen any_heart_disease=(heart_disease==1) | (ami==1) | (angina==1) | (chd==1)
+
+. replace any_heart_disease=. if heart_disease==. & ami==. & angina==. & chd==.
+(329 real changes made, 329 to missing)
+
+. tab any_heart_disease chd
+
+any_heart_ |          chd
+   disease |         0          1 |     Total
+-----------+----------------------+----------
+         0 | 1,292,624          0 | 1,292,624 
+         1 |    46,012     28,437 |    74,449 
+-----------+----------------------+----------
+     Total | 1,338,636     28,437 | 1,367,073 
+
+. 
+.  
+.  *ASTHATAKYR 
+
+. gen asthma_episode=asthatakyr==2
+
+. replace asthma_episode=0 if asthatakyr==1
+(0 real changes made)
+
+. replace asthma_episode=. if asthatakyr==9 | asthatakyr==7
+(170 real changes made, 170 to missing)
+
+. 
+. *  ASTHMAEV 
+
+. gen asthma_ever_told=asthmaev==2
+
+. replace asthma_ever_told=0 if asthmaev==1
+(0 real changes made)
+
+. replace asthma_ever_told=. if asthmaev==7 | asthmaev==9
+(576 real changes made, 576 to missing)
+
+. 
+. gen asthma_cat = 1*(asthma_ever_told==1 & asthma_episode==0) + 2*(asthma_episode==1)
+
+. replace asthma_cat=. if asthma_ever_told==. | asthma_episode==.
+(746 real changes made, 746 to missing)
+
+. tab asthma_cat, missing
+
+ asthma_cat |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |  1,297,064       94.80       94.80
+          1 |     47,095        3.44       98.24
+          2 |     23,344        1.71       99.95
+          . |        746        0.05      100.00
+------------+-----------------------------------
+      Total |  1,368,249      100.00
+
+. 
+. * HAYFEVERYR 
+
+. gen hayfever12m=hayfeveryr==2
+
+. replace hayfever12m=. if hayfeveryr==9 | hayfeveryr==7
+(699 real changes made, 699 to missing)
+
+. 
+. * PAst year food allergy: FALLERGYR
+
+. gen foodallergy12m=fallergyr==2
+
+. replace foodallergy12m=. if fallergyr==9 | fallergyr==7
+(0 real changes made)
+
+. 
+. 
+. * ASTHMASTIL 
+
+. * 1 = still have asthma, 0= don't still have asthma or never told asthma.  
+
+. gen asthma_still=asthmastil==2
+
+. replace asthma_still=0 if asthma_ever_told==0 
+(0 real changes made)
+
+. replace asthma_still=. if asthmastil==7 | asthmastil==9 | asthma_ever_told==.
+(1,213 real changes made, 1,213 to missing)
+
+. 
+. * Demographics
+
+. 
+. gen female=sex==2
+
+. replace female=. if sex==.
+(0 real changes made)
+
+. 
+. * Race
+
+. 
+. * Redo the race variable
+
+. *100White
+
+. *200Black/African American
+
+. *300American Indian/Alaskan Native
+
+. *400Asian
+
+. *500Other Race and Multiple Race510Other Race519Race Group Not Releasable520Multiple Race521Mu
+> liple Race, including American Indian/Alaskan Native
+
+. * 997Unknown-Refused998Unknown-Not ascertained 999Unknown-Don't Know
+
+. 
+. gen race2 = racenew
+
+. replace race2=500 if racenew>=500 | racenew==300
+(49,824 real changes made)
+
+. label define racelabel 100 "White" 200 "Black" 400 "Asian" 500 "Other"
+
+. label values race2 racelabel
+
+. label variable race2 "Race"
+
+. tab  racenew race2
+
+   self-reported race |
+       (post-1997 omb |                    Race
+           standards) |     White      Black      Asian      Other |     Total
+----------------------+--------------------------------------------+----------
+                white | 1,056,734          0          0          0 | 1,056,734 
+black/african america |         0    184,290          0          0 |   184,290 
+american indian/alask |         0          0          0     12,728 |    12,728 
+                asian |         0          0     77,401          0 |    77,401 
+           other race |         0          0          0     13,878 |    13,878 
+race group not releas |         0          0          0      2,469 |     2,469 
+        multiple race |         0          0          0     20,477 |    20,477 
+      unknown-refused |         0          0          0        107 |       107 
+unknown-not ascertain |         0          0          0         81 |        81 
+   unknown-don't know |         0          0          0         84 |        84 
+----------------------+--------------------------------------------+----------
+                Total | 1,056,734    184,290     77,401     49,824 | 1,368,249 
+
+. 
+. 
+. gen white=racenew==100
+
+. replace white=. if racenew>900
+(272 real changes made, 272 to missing)
+
+. tab  racenew white
+
+   self-reported race |
+       (post-1997 omb |         white
+           standards) |         0          1 |     Total
+----------------------+----------------------+----------
+                white |         0  1,056,734 | 1,056,734 
+black/african america |   184,290          0 |   184,290 
+american indian/alask |    12,728          0 |    12,728 
+                asian |    77,401          0 |    77,401 
+           other race |    13,878          0 |    13,878 
+race group not releas |     2,469          0 |     2,469 
+        multiple race |    20,477          0 |    20,477 
+----------------------+----------------------+----------
+                Total |   311,243  1,056,734 | 1,367,977 
+
+. 
+. gen black=racenew==200
+
+. replace black=. if racenew>900
+(272 real changes made, 272 to missing)
+
+. tab  racenew black
+
+   self-reported race |
+       (post-1997 omb |         black
+           standards) |         0          1 |     Total
+----------------------+----------------------+----------
+                white | 1,056,734          0 | 1,056,734 
+black/african america |         0    184,290 |   184,290 
+american indian/alask |    12,728          0 |    12,728 
+                asian |    77,401          0 |    77,401 
+           other race |    13,878          0 |    13,878 
+race group not releas |     2,469          0 |     2,469 
+        multiple race |    20,477          0 |    20,477 
+----------------------+----------------------+----------
+                Total | 1,183,687    184,290 | 1,367,977 
+
+. 
+. gen aian=racenew==300
+
+. replace aian=. if racenew>900
+(272 real changes made, 272 to missing)
+
+. tab  racenew aian
+
+   self-reported race |
+       (post-1997 omb |         aian
+           standards) |         0          1 |     Total
+----------------------+----------------------+----------
+                white | 1,056,734          0 | 1,056,734 
+black/african america |   184,290          0 |   184,290 
+american indian/alask |         0     12,728 |    12,728 
+                asian |    77,401          0 |    77,401 
+           other race |    13,878          0 |    13,878 
+race group not releas |     2,469          0 |     2,469 
+        multiple race |    20,477          0 |    20,477 
+----------------------+----------------------+----------
+                Total | 1,355,249     12,728 | 1,367,977 
+
+. 
+. gen asian=racenew==400
+
+. replace asian=. if racenew>900
+(272 real changes made, 272 to missing)
+
+. tab  racenew asian
+
+   self-reported race |
+       (post-1997 omb |         asian
+           standards) |         0          1 |     Total
+----------------------+----------------------+----------
+                white | 1,056,734          0 | 1,056,734 
+black/african america |   184,290          0 |   184,290 
+american indian/alask |    12,728          0 |    12,728 
+                asian |         0     77,401 |    77,401 
+           other race |    13,878          0 |    13,878 
+race group not releas |     2,469          0 |     2,469 
+        multiple race |    20,477          0 |    20,477 
+----------------------+----------------------+----------
+                Total | 1,290,576     77,401 | 1,367,977 
+
+. 
+. gen otherrace=racenew==510
+
+. replace otherrace=1 if racenew==519
+(2,469 real changes made)
+
+. replace otherrace=. if racenew>900
+(272 real changes made, 272 to missing)
+
+. tab  racenew otherrace
+
+   self-reported race |
+       (post-1997 omb |       otherrace
+           standards) |         0          1 |     Total
+----------------------+----------------------+----------
+                white | 1,056,734          0 | 1,056,734 
+black/african america |   184,290          0 |   184,290 
+american indian/alask |    12,728          0 |    12,728 
+                asian |    77,401          0 |    77,401 
+           other race |         0     13,878 |    13,878 
+race group not releas |         0      2,469 |     2,469 
+        multiple race |    20,477          0 |    20,477 
+----------------------+----------------------+----------
+                Total | 1,351,630     16,347 | 1,367,977 
+
+. 
+. gen multiplerace=racenew==520
+
+. replace multiplerace=. if racenew>900
+(272 real changes made, 272 to missing)
+
+. tab  racenew multiplerace
+
+   self-reported race |
+       (post-1997 omb |     multiplerace
+           standards) |         0          1 |     Total
+----------------------+----------------------+----------
+                white | 1,056,734          0 | 1,056,734 
+black/african america |   184,290          0 |   184,290 
+american indian/alask |    12,728          0 |    12,728 
+                asian |    77,401          0 |    77,401 
+           other race |    13,878          0 |    13,878 
+race group not releas |     2,469          0 |     2,469 
+        multiple race |         0     20,477 |    20,477 
+----------------------+----------------------+----------
+                Total | 1,347,500     20,477 | 1,367,977 
+
+. 
+. gen hispanic=hispeth!=10
+
+. tab  hispeth hispanic
+
+                      |       hispanic
+   hispanic ethnicity |         0          1 |     Total
+----------------------+----------------------+----------
+not hispanic/spanish  | 1,099,755          0 | 1,099,755 
+              mexican |         0    106,689 |   106,689 
+     mexican-american |         0     65,040 |    65,040 
+         puerto rican |         0     22,835 |    22,835 
+ cuban/cuban american |         0     12,738 |    12,738 
+ dominican (republic) |         0      7,899 |     7,899 
+central or south amer |         0     42,142 |    42,142 
+other latin american, |         0        585 |       585 
+        other spanish |         0      6,454 |     6,454 
+hispanic/latino/spani |         0         23 |        23 
+hispanic/latino/spani |         0         37 |        37 
+hispanic/latino/spani |         0        185 |       185 
+    multiple hispanic |         0      3,867 |     3,867 
+----------------------+----------------------+----------
+                Total | 1,099,755    268,494 | 1,368,249 
+
+. 
+. gen bornus_mainland=usborn==20
+
+. replace bornus_mainland=. if usborn>=97
+(6,020 real changes made, 6,020 to missing)
+
+. gen bornus_territories=usborn==20 | usborn==11
+
+. replace bornus_territories=. if usborn>=97
+(6,020 real changes made, 6,020 to missing)
+
+. 
+. * Smoker
+
+. 
+. * This question is only asked to people who have ever smoked 100 cigarettes.  
+
+. 
+
+. gen currentsmoker=smokestatus2==11 | smokestatus2==12 | smokestatus2==40
+
+. gen formersmoker=(smokestatus2==20)
+
+. gen neversmoker=(currentsmoker==0) & (formersmoker==0)
+
+. 
+. 
+
+. tab smokestatus2 formersmoker, missing
+
+    cigarette smoking |
+    recode 2: current |     formersmoker
+detailed/former/never |         0          1 |     Total
+----------------------+----------------------+----------
+                  niu |   765,109          0 |   765,109 
+current every day smo |    91,598          0 |    91,598 
+current some day smok |    25,378          0 |    25,378 
+        former smoker |         0    133,492 |   133,492 
+         never smoked |   348,000          0 |   348,000 
+has smoked, current s |       242          0 |       242 
+unknown if ever smoke |     4,430          0 |     4,430 
+----------------------+----------------------+----------
+                Total | 1,234,757    133,492 | 1,368,249 
+
+. 
+. * Diabetes and prediabetes
+
+. gen ever_told_diabetes=diabeticev==2
+
+. replace ever_told_diabetes=. if diabeticev==7 | diabeticev==9
+(486 real changes made, 486 to missing)
+
+. gen ever_told_prediabetes=diabeticev==3 
+
+. replace ever_told_prediabetes=1 if  diaprecond==2
+(12,103 real changes made)
+
+. replace ever_told_prediabetes=. if diabeticev>=7 & diaprecond>=7
+(406 real changes made, 406 to missing)
+
+. 
+. 
+. * Education
+
+. 
+. 
+. gen hsgradgedplus=educ>=201
+
+. replace hsgradgedplus=. if educ>=996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. gen lthighschool=educ<=200 
+
+. replace lthighschool=. if educ>=996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. gen ged=educ==202 
+
+. replace ged=. if educ>=996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. 
+. gen hsgrad=educ==201
+
+. replace hsgrad=. if educ>=996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. 
+. gen somecoll=educ==301
+
+. replace somecoll=. if educ>=996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. 
+. gen aa=educ==302 | educ==303
+
+. replace aa=. if educ>=996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. 
+. gen baplus=educ>=400
+
+. replace baplus=. if educ>=996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. gen educ_cat = 1*(hsgrad==1)  + 2*(somecoll==1) + 3*(aa==1) + 4*(baplus==1)
+
+. tab  educ educ_cat, missing
+
+          educational |                        educ_cat
+           attainment |         0          1          2          3          4 |     Total
+----------------------+-------------------------------------------------------+----------
+never attended/kinder |     7,834          0          0          0          0 |     7,834 
+              grade 1 |     1,850          0          0          0          0 |     1,850 
+              grade 2 |     3,436          0          0          0          0 |     3,436 
+              grade 3 |     6,422          0          0          0          0 |     6,422 
+              grade 4 |     5,723          0          0          0          0 |     5,723 
+              grade 5 |     6,835          0          0          0          0 |     6,835 
+              grade 6 |    26,672          0          0          0          0 |    26,672 
+              grade 7 |     9,135          0          0          0          0 |     9,135 
+              grade 8 |    25,138          0          0          0          0 |    25,138 
+              grade 9 |    30,903          0          0          0          0 |    30,903 
+             grade 10 |    33,035          0          0          0          0 |    33,035 
+             grade 11 |    44,395          0          0          0          0 |    44,395 
+12th grade, no diplom |    32,336          0          0          0          0 |    32,336 
+ high school graduate |         0    343,223          0          0          0 |   343,223 
+    ged or equivalent |    37,320          0          0          0          0 |    37,320 
+some college, no degr |         0          0    253,341          0          0 |   253,341 
+aa degree: technical/ |         0          0          0     84,186          0 |    84,186 
+aa degree: academic p |         0          0          0     45,275          0 |    45,275 
+bachelor's degree (ba |         0          0          0          0    219,574 |   219,574 
+master's degree (ma,m |         0          0          0          0     85,882 |    85,882 
+professional (md,dds, |         0          0          0          0     16,381 |    16,381 
+doctoral degree (phd, |         0          0          0          0     14,754 |    14,754 
+     unknown--refused |    19,239          0          0          0          0 |    19,239 
+unknown--not ascertai |       202          0          0          0          0 |       202 
+  unknown--don't know |    15,158          0          0          0          0 |    15,158 
+----------------------+-------------------------------------------------------+----------
+                Total |   305,633    343,223    253,341    129,461    336,591 | 1,368,249 
+
+. replace educ_cat =. if educ>996
+(34,599 real changes made, 34,599 to missing)
+
+. 
+. gen fpl = (poverty==10) + 0.5*(poverty==11) + 0.625*(poverty==12) + 0.875*(poverty==13) + (pov
+> erty==14) + 1.5*(poverty==20) + 1.125*(poverty==21) + 1.375*(poverty==22) + 1.625*(poverty==23
+> ) + 1.875*(poverty==24) + 1.5*(poverty==25) + 2*(poverty==30) + 2.25*(poverty==31) + 2.75*(pov
+> erty==32) + 3.25*(poverty==33)+ 3.75*(poverty==34) + 4.25*(poverty==35) + 4.75*(poverty==36) +
+>  5.5*(poverty==37) + 2.5*(poverty==38)
+
+. replace fpl=. if poverty>90
+(260,168 real changes made, 260,168 to missing)
+
+. 
+. gen povertyratio=1*(poverty<=14) + 2*(poverty>=20 & poverty<30) + 3*(poverty>=30)
+
+. replace povertyratio=. if poverty==98 | poverty==99
+(260,168 real changes made, 260,168 to missing)
+
+. 
+. gen employment_status = empstat
+
+. replace employment_status=. if empstat>900
+(14,200 real changes made, 14,200 to missing)
+
+. 
+. 
+. gen working = employment_status==111
+
+. gen working_withoutpay = employment_status==112
+
+. gen employed_notatjobpast2weeks = employment_status==120
+
+. gen unemployed=employment_status==200
+
+. gen out_of_laborforce=employment_status==220
+
+. replace unemployed=. if employment_status==.
+(14,200 real changes made, 14,200 to missing)
+
+. replace out_of_laborforce=. if employment_status==.
+(14,200 real changes made, 14,200 to missing)
+
+. 
+. gen medicaid = hipubcov==2
+
+. replace medicaid=0 if hipubcov==1
+(0 real changes made)
+
+. replace medicaid=. if hipubcov==0 | hipubcov==9
+(26,126 real changes made, 26,126 to missing)
+
+. 
+. gen priv_insurance = hiprivate==2
+
+. replace priv_insurance=0 if hiprivate==1
+(0 real changes made)
+
+. replace priv_insurance=. if hiprivate==0 | hiprivate>=7
+(73,380 real changes made, 73,380 to missing)
+
+. 
+. gen home_ownership=ownership
+
+. replace home_ownership=. if ownership>=90
+(25,513 real changes made, 25,513 to missing)
+
+. 
+. 
+. gen own_home=home_ownership==10
+
+. gen rent_home=home_ownership==20
+
+. gen home_otherarrangement=home_ownership==30
+
+. replace own_home=. if ownership>=90
+(25,513 real changes made, 25,513 to missing)
+
+. replace rent_home=. if ownership>=90
+(25,513 real changes made, 25,513 to missing)
+
+. replace home_otherarrangement=ownership>=90
+(54,279 real changes made)
+
+. 
+. 
+. * Exercise
+
+. * Moderate : this doesn't seem reliable to have people with 10-20k minutes per week
+
+. gen mod10dmin_temp = mod10dmin
+
+. replace mod10dmin_temp=. if mod10dmin>996
+(3,692 real changes made, 3,692 to missing)
+
+. gen mod10dmin_miss=mod10dmin_temp==.
+
+. gen mod10fwk_temp=mod10fwk
+
+. replace mod10fwk_temp=. if mod10fwk>90
+(289,667 real changes made, 289,667 to missing)
+
+. gen mod10wmin_miss=mod10fwk_temp==.
+
+. 
+. tab mod10wmin_miss mod10dmin_miss, missing
+
+mod10wmin_ |    mod10dmin_miss
+      miss |         0          1 |     Total
+-----------+----------------------+----------
+         0 | 1,075,065      3,517 | 1,078,582 
+         1 |   289,492        175 |   289,667 
+-----------+----------------------+----------
+     Total | 1,364,557      3,692 | 1,368,249 
+
+. 
+. histogram mod10fwk_temp
+(bin=60, start=0, width=.46666667)
+
+. histogram mod10dmin_temp
+(bin=61, start=0, width=11.803279)
+
+. 
+. gen mod10minweek=mod10dmin_temp*mod10fwk_temp
+(293,184 missing values generated)
+
+. 
+. gen modphysactivity150= mod10minweek>=150
+
+. replace modphysactivity150=. if mod10minweek==.
+(293,184 real changes made, 293,184 to missing)
+
+. tab modphysactivity150
+
+modphysacti |
+    vity150 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    938,819       87.33       87.33
+          1 |    136,246       12.67      100.00
+------------+-----------------------------------
+      Total |  1,075,065      100.00
+
+. 
+. * Vigorous
+
+. gen vig10dmin_temp = vig10dmin
+
+. replace vig10dmin_temp=. if vig10dmin>996
+(1,807 real changes made, 1,807 to missing)
+
+. gen vig10fwk_temp=vig10fwk
+
+. replace vig10fwk_temp=. if vig10fwk>90
+(376,523 real changes made, 376,523 to missing)
+
+. gen vig10minweek=vig10dmin_temp*vig10fwk_temp
+(378,073 missing values generated)
+
+. gen vigphysactivity75= vig10minweek>=75
+
+. replace vigphysactivity75=. if vig10minweek==.
+(378,073 real changes made, 378,073 to missing)
+
+. tab vigphysactivity75
+
+vigphysacti |
+     vity75 |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |    818,978       82.71       82.71
+          1 |    171,198       17.29      100.00
+------------+-----------------------------------
+      Total |    990,176      100.00
+
+. 
+. 
+. 
+. * Hypertension in past year: only available for some years.
+
+. 
+. gen hypertension_year=hypertenyr==2
+
+. replace hypertension_year=0 if hypertenyr==1
+(0 real changes made)
+
+. replace hypertension_year=. if hypertenyr>=7
+(735,948 real changes made, 735,948 to missing)
+
+. 
+. * High cholesterol in the past year
+
+. 
+. 
+. 
+. gen highcholesterol_year=cholhighyr==2
+
+. replace highcholesterol_year=0 if cholhighyr==1
+(0 real changes made)
+
+. replace highcholesterol_year=. if cholhighyr>=7
+(737,324 real changes made, 737,324 to missing)
+
+. 
+. tab highcholesterol_year hypertension_year
+
+highcholes |   hypertension_year
+terol_year |         0          1 |     Total
+-----------+----------------------+----------
+         0 |   536,352     37,178 |   573,530 
+         1 |    25,160     31,927 |    57,087 
+-----------+----------------------+----------
+     Total |   561,512     69,105 |   630,617 
+
+. 
+. gen bmi_c = bmi 
+
+. replace bmi_c=. if bmi>=96 | bmi==0
+(789,125 real changes made, 789,125 to missing)
+
+. gen bmicalc_c = bmicalc
+
+. replace bmicalc_c = . if bmicalc>900 | bmicalc==0
+(824,502 real changes made, 824,502 to missing)
+
+. mdesc bmi_c bmicalc_c
+
+    Variable    |     Missing          Total     Percent Missing
+----------------+-----------------------------------------------
+          bmi_c |     789,125      1,368,249          57.67
+      bmicalc_c |     824,502      1,368,249          60.26
+----------------+-----------------------------------------------
+
+. histogram bmi_c
+(bin=57, start=6.5999999, width=1.5354386)
+
+. 
+. 
+. 
+. gen bmi_miss=bmi_c==.
+
+. gen bmicalc_miss = bmicalc_c==.
+
+. tab bmi_miss bmicalc_miss, missing
+
+           |     bmicalc_miss
+  bmi_miss |         0          1 |     Total
+-----------+----------------------+----------
+         0 |   543,747     35,377 |   579,124 
+         1 |         0    789,125 |   789,125 
+-----------+----------------------+----------
+     Total |   543,747    824,502 | 1,368,249 
+
+. 
+. 
+. * 4,430 missing smoking status
+
+. 
+. 
+. 
+. gen cvh_score4=(bmi<30) + (currentsmoker==0) + (modphysactivity150==1 | vigphysactivity75==1) 
+> + (ever_told_diabetes==0 & ever_told_prediabetes==0)
+
+. replace cvh_score4=. if bmi==. 
+(0 real changes made)
+
+. replace cvh_score4=. if currentsmoker==. 
+(0 real changes made)
+
+. replace cvh_score4=. if modphysactivity150==.  & vigphysactivity75==. 
+(238,302 real changes made, 238,302 to missing)
+
+. replace cvh_score4=. if ever_told_diabetes==.  & ever_told_prediabetes==. 
+(152 real changes made, 152 to missing)
+
+. 
+. 
+. gen cvh_score6=(bmi<30) + (currentsmoker==0) + (modphysactivity150==1 | vigphysactivity75==1) 
+> + (ever_told_diabetes==0 & ever_told_prediabetes==0) + (hypertension_year==0) + (highcholester
+> ol_year==0)
+
+. replace cvh_score6=. if hypertension_year==. | highcholesterol_year==. 
+(737,632 real changes made, 737,632 to missing)
+
+. replace cvh_score6=. if bmi==. 
+(0 real changes made)
+
+. replace cvh_score6=. if currentsmoker==. 
+(0 real changes made)
+
+. replace cvh_score6=. if modphysactivity150==.  & vigphysactivity75==. 
+(99,103 real changes made, 99,103 to missing)
+
+. replace cvh_score6=. if ever_told_diabetes==.  & ever_told_prediabetes==. 
+(61 real changes made, 61 to missing)
+
+. 
+. 
+. tab cvh_score4 cvh_score6, missing
+
+           |                            cvh_score6
+cvh_score4 |         0          1          2          3          4          5 |     Total
+-----------+------------------------------------------------------------------+----------
+         0 |       239        260        190          0          0          0 |     1,204 
+         1 |         0      2,289      2,741      3,162          0          0 |    15,084 
+         2 |         0          0      4,966      8,920     18,524          0 |    65,181 
+         3 |         0          0          0      5,580     13,983    401,065 |   906,379 
+         4 |         0          0          0          0      3,395     11,062 |   141,947 
+         . |         0          0          0          0          0          0 |   238,454 
+-----------+------------------------------------------------------------------+----------
+     Total |       239      2,549      7,897     17,662     35,902    412,127 | 1,368,249 
+
+
+           |      cvh_score6
+cvh_score4 |         6          . |     Total
+-----------+----------------------+----------
+         0 |         0        515 |     1,204 
+         1 |         0      6,892 |    15,084 
+         2 |         0     32,771 |    65,181 
+         3 |         0    485,751 |   906,379 
+         4 |    55,077     72,413 |   141,947 
+         . |         0    238,454 |   238,454 
+-----------+----------------------+----------
+     Total |    55,077    836,796 | 1,368,249 
+
+. 
+. save "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHI
+> S/nhis_00009-jun4-variables.dta"
+file /Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/n
+> his_00009-jun4-variables.dta saved
+
+. use "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS
+> /nhis_00009-imputed-apr8.dta"
+
+. 
+. cd "/Users/jerosenbaum/OneDrive - Downstate Medical Center/projects/Sai NHIS/"
+/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS
+
+. 
+. mi svyset [pweight=sampweight20], strata(strata) psu(psu)
+
+      pweight: sampweight20
+          VCE: linearized
+  Single unit: missing
+     Strata 1: strata
+         SU 1: psu
+        FPC 1: <zero>
+
+. 
+. clear
+
+. use "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS
+> /nhis_00009-imputed-may12.dta"
+
+. 
+. cd "/Users/jerosenbaum/OneDrive - Downstate Medical Center/projects/Sai NHIS/"
+/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS
+
+. 
+. mi svyset [pweight=sampweight20], strata(strata) psu(psu)
+
+      pweight: sampweight20
+          VCE: linearized
+  Single unit: missing
+     Strata 1: strata
+         SU 1: psu
+        FPC 1: <zero>
+
+. 
+. 
+
+. gen age20f=round(age/20) 
+
+. tab age20f
+
+     age20f |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |    112,001       18.57       18.57
+          2 |    218,273       36.19       54.76
+          3 |    182,163       30.20       84.96
+          4 |     90,703       15.04      100.00
+------------+-----------------------------------
+      Total |    603,140      100.00
+
+. 
+. svy: logistic chd asthma_episode#female#i.age10f year_c age10 black aian asian  hispanic bornu
+> s_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgr
+> ad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c 
+> , or
+no; data are mi set
+    Use mi svyset to set or query these data; mi svyset has the same syntax as svyset.
+
+    Perhaps you did not type svyset.  Some commands call svyset to obtain information about
+    the settings.  In that case, that command is not appropriate for running directly on mi
+    data.  Use mi extract to select the data on which you want to run the command, which is
+    probably m=0.
+r(119);
+
+. 
+
+. 
+. clear
+
+. use "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS
+> /NHIS-heartdisease.dta"
+
+. 
+. * Limit to universe of the CHD and angina questions
+
+. keep if age>=18 & cheartdiev!=0
+(0 observations deleted)
+
+. 
+. tab cheartdiev, missing
+
+  ever told had coronary |
+           heart disease |      Freq.     Percent        Cum.
+-------------------------+-----------------------------------
+                      no |    573,526       95.09       95.09
+                     yes |     28,437        4.71       99.80
+        unknown--refused |        286        0.05       99.85
+unknown--not ascertained |          1        0.00       99.85
+     unknown--don't know |        890        0.15      100.00
+-------------------------+-----------------------------------
+                   Total |    603,140      100.00
+
+. gen chd=cheartdiev==2
+
+. 
+. tab angipecev, missing
+
+   ever told had angina |
+               pectoris |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+                     no |    587,388       97.39       97.39
+                    yes |     14,572        2.42       99.80
+        unknown-refused |        272        0.05       99.85
+unknown-not ascertained |          1        0.00       99.85
+     unknown-don't know |        907        0.15      100.00
+------------------------+-----------------------------------
+                  Total |    603,140      100.00
+
+. gen angina = angipecev==2
+
+. 
+. tab heartattev, missing
+
+     ever told had heart |
+                  attack |      Freq.     Percent        Cum.
+-------------------------+-----------------------------------
+                      no |    580,693       96.28       96.28
+                     yes |     21,746        3.61       99.88
+        unknown--refused |        269        0.04       99.93
+unknown--not ascertained |          1        0.00       99.93
+     unknown--don't know |        431        0.07      100.00
+-------------------------+-----------------------------------
+                   Total |    603,140      100.00
+
+. gen ami=heartattev==2
+
+. 
+. gen heart_disease=heartconev==2
+
+. 
+. gen any_heart_disease=(heart_disease==1) | (ami==1) | (angina==1) | (chd==1)
+
+. 
+.  
+.  *ASTHATAKYR 
+
+.  tab asthatakyr, missing
+
+              had asthma |
+ attack/episode, past 12 |
+                  months |      Freq.     Percent        Cum.
+-------------------------+-----------------------------------
+                     niu |    532,531       88.29       88.29
+                      no |     47,095        7.81       96.10
+                     yes |     23,344        3.87       99.97
+        unknown--refused |          3        0.00       99.97
+     unknown--don't know |        167        0.03      100.00
+-------------------------+-----------------------------------
+                   Total |    603,140      100.00
+
+.  codebook asthatakyr
+
+------------------------------------------------------------------------------------------------
+asthatakyr                                             had asthma attack/episode, past 12 months
+------------------------------------------------------------------------------------------------
+
+                  type:  numeric (byte)
+                 label:  ASTHATAKYR
+
+                 range:  [0,9]                        units:  1
+         unique values:  5                        missing .:  0/603,140
+
+            tabulation:  Freq.   Numeric  Label
+                       532,531         0  niu
+                        47,095         1  no
+                        23,344         2  yes
+                             3         7  unknown--refused
+                           167         9  unknown--don't know
+
+. gen asthma_episode=asthatakyr==2
+
+. 
+. *  ASTHMAEV 
+
+. gen asthma_ever_told=asthmaev==2
+
+. 
+. 
+. * HAYFEVERYR 
+
+. gen hayfever12m=hayfeveryr==2
+
+. 
+. 
+. * ASTHMASTIL 
+
+. * 1 = still have asthma, 0= don't still have asthma or never told asthma.  
+
+. tab asthmastil asthma_ever_told, missing
+
+                      |   asthma_ever_told
+    still have asthma |         0          1 |     Total
+----------------------+----------------------+----------
+                  niu |   475,076          0 |   475,076 
+                   no |         0     22,942 |    22,942 
+                  yes |         0     41,310 |    41,310 
+      unknown-refused |         0          2 |         2 
+   unknown-don't know |         0        635 |       635 
+                    . |    57,455      5,720 |    63,175 
+----------------------+----------------------+----------
+                Total |   532,531     70,609 |   603,140 
+
+. gen asthma_still=asthmastil==2
+
+. 
+. * Demographics
+
+. 
+. gen female=sex==2
+
+. 
+. * Race
+
+. 
+. gen race2 = racenew
+
+. replace race2=500 if racenew>=500 | racenew==300
+(20,735 real changes made)
+
+. label define racelabel 100 "White" 200 "Black" 400 "Asian" 500 "Other"
+
+. label values race2 racelabel
+
+. label variable race2 "Race"
+
+. tab  racenew race2
+
+   self-reported race |
+       (post-1997 omb |                    Race
+           standards) |     White      Black      Asian      Other |     Total
+----------------------+--------------------------------------------+----------
+                white |   467,543          0          0          0 |   467,543 
+black/african america |         0     86,342          0          0 |    86,342 
+american indian/alask |         0          0          0      5,295 |     5,295 
+                asian |         0          0     28,520          0 |    28,520 
+           other race |         0          0          0      4,958 |     4,958 
+race group not releas |         0          0          0        898 |       898 
+        multiple race |         0          0          0      9,491 |     9,491 
+      unknown-refused |         0          0          0         22 |        22 
+unknown-not ascertain |         0          0          0         42 |        42 
+   unknown-don't know |         0          0          0         29 |        29 
+----------------------+--------------------------------------------+----------
+                Total |   467,543     86,342     28,520     20,735 |   603,140 
+
+. 
+. gen white=racenew==100
+
+. gen black=racenew==200
+
+. gen aian=racenew==300
+
+. gen asian=racenew==400
+
+. gen otherrace=racenew==510
+
+. gen multiplerace=racenew==520
+
+. 
+. gen hispanic=hispeth!=10
+
+. 
+. 
+. gen bornus_mainland=usborn==20
+
+. gen bornus_territories=usborn==20 | usborn==11
+
+. 
+. * Smoker
+
+. 
+. * This question is only asked to people who have ever smoked 100 cigarettes.  
+
+. 
+
+. gen currentsmoker=smokestatus2==11 | smokestatus2==12 | smokestatus2==40
+
+. gen formersmoker=(smokestatus2==20)
+
+. gen neversmoker=(currentsmoker==0) & (formersmoker==0)
+
+. 
+. 
+
+. tab smokestatus2 formersmoker, missing
+
+    cigarette smoking |
+    recode 2: current |     formersmoker
+detailed/former/never |         0          1 |     Total
+----------------------+----------------------+----------
+current every day smo |    91,598          0 |    91,598 
+current some day smok |    25,378          0 |    25,378 
+        former smoker |         0    133,492 |   133,492 
+         never smoked |   348,000          0 |   348,000 
+has smoked, current s |       242          0 |       242 
+unknown if ever smoke |     4,430          0 |     4,430 
+----------------------+----------------------+----------
+                Total |   469,648    133,492 |   603,140 
+
+. 
+. * Diabetes and prediabetes
+
+. gen ever_told_diabetes=diabeticev==2
+
+. gen ever_told_prediabetes=diabeticev==3 
+
+. 
+. * Education
+
+. 
+. gen hsgradgedplus=educ>=201
+
+. gen lthighschool=educ<=200 
+
+. gen ged=educ==202 
+
+. gen hsgrad=educ==201
+
+. gen somecoll=educ==301
+
+. gen aa=educ==302 | educ==303
+
+. gen baplus=educ>=400
+
+. 
+. gen educ_cat = 1*(hsgrad==1)  + 2*(somecoll==1) + 3*(aa==1) + 4*(baplus==1)
+
+. tab  educ educ_cat, missing
+
+          educational |                        educ_cat
+           attainment |         0          1          2          3          4 |     Total
+----------------------+-------------------------------------------------------+----------
+never attended/kinder |     3,037          0          0          0          0 |     3,037 
+              grade 1 |       800          0          0          0          0 |       800 
+              grade 2 |     1,422          0          0          0          0 |     1,422 
+              grade 3 |     2,602          0          0          0          0 |     2,602 
+              grade 4 |     2,428          0          0          0          0 |     2,428 
+              grade 5 |     2,965          0          0          0          0 |     2,965 
+              grade 6 |    10,232          0          0          0          0 |    10,232 
+              grade 7 |     4,376          0          0          0          0 |     4,376 
+              grade 8 |    12,179          0          0          0          0 |    12,179 
+              grade 9 |    13,605          0          0          0          0 |    13,605 
+             grade 10 |    15,345          0          0          0          0 |    15,345 
+             grade 11 |    19,041          0          0          0          0 |    19,041 
+12th grade, no diplom |    13,799          0          0          0          0 |    13,799 
+ high school graduate |         0    144,857          0          0          0 |   144,857 
+    ged or equivalent |    17,003          0          0          0          0 |    17,003 
+some college, no degr |         0          0    116,313          0          0 |   116,313 
+aa degree: technical/ |         0          0          0     39,549          0 |    39,549 
+aa degree: academic p |         0          0          0     21,013          0 |    21,013 
+bachelor's degree (ba |         0          0          0          0    101,942 |   101,942 
+master's degree (ma,m |         0          0          0          0     41,506 |    41,506 
+professional (md,dds, |         0          0          0          0      7,427 |     7,427 
+doctoral degree (phd, |         0          0          0          0      7,067 |     7,067 
+     unknown--refused |         0          0          0          0      2,101 |     2,101 
+unknown--not ascertai |         0          0          0          0         19 |        19 
+  unknown--don't know |         0          0          0          0      2,512 |     2,512 
+----------------------+-------------------------------------------------------+----------
+                Total |   118,834    144,857    116,313     60,562    162,574 |   603,140 
+
+. 
+. gen fpl = (poverty==10) + 0.5*(poverty==11) + 0.625*(poverty==12) + 0.875*(poverty==13) + (pov
+> erty==14) + 1.5*(poverty==20) + 1.125*(poverty==21) + 1.375*(poverty==22) + 1.625*(poverty==23
+> ) + 1.875*(poverty==24) + 1.5*(poverty==25) + 2*(poverty==30) + 2.25*(poverty==31) + 2.75*(pov
+> erty==32) + 3.25*(poverty==33)+ 3.75*(poverty==34) + 4.25*(poverty==35) + 4.75*(poverty==36) +
+>  5.5*(poverty==37) + 2.5*(poverty==38)
+
+. replace fpl=. if poverty>90
+(85,388 real changes made, 85,388 to missing)
+
+. 
+. gen povertyratio=1*(poverty<=14) + 2*(poverty>=20 & poverty<30) + 3*(poverty>=30)
+
+. replace povertyratio=. if poverty==98 | poverty==99
+(85,388 real changes made, 85,388 to missing)
+
+. 
+. gen employment_status = empstat
+
+. replace employment_status=. if empstat>900
+(769 real changes made, 769 to missing)
+
+. 
+. 
+. gen working = employment_status==111
+
+. gen working_withoutpay = employment_status==112
+
+. gen employed_notatjobpast2weeks = employment_status==120
+
+. gen unemployed=employment_status==200
+
+. gen out_of_laborforce=employment_status==220
+
+. 
+. gen medicaid = hipubcov==2
+
+. gen priv_insurance = hiprivate==2
+
+. gen home_ownership=ownership
+
+. gen own_home=home_ownership==10
+
+. gen rent_home=home_ownership==20
+
+. gen home_otherarrangement=home_ownership==30
+
+. 
+. 
+. 
+. 
+. * Hypertension in past year: only available for some years.
+
+. 
+. tab hypertenyr, missing
+
+ had hypertension, past |
+              12 months |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+                    niu |    197,090       32.68       32.68
+                     no |     12,055        2.00       34.68
+                    yes |     69,569       11.53       46.21
+        unknown-refused |          2        0.00       46.21
+     unknown-don't know |        359        0.06       46.27
+                      . |    324,065       53.73      100.00
+------------------------+-----------------------------------
+                  Total |    603,140      100.00
+
+. gen hypertension_year=hypertenyr==2
+
+. replace hypertension_year=0 if hypertenyr==1
+(0 real changes made)
+
+. replace hypertension_year=. if hypertenyr>=7 | hypertenyr==0
+(521,516 real changes made, 521,516 to missing)
+
+. 
+. * High cholesterol in the past year
+
+. 
+. gen highcholesterol_year=cholhighyr==2
+
+. replace highcholesterol_year=0 if cholhighyr==1
+(0 real changes made)
+
+. replace highcholesterol_year=. if cholhighyr>=7 | cholhighyr==0
+(501,448 real changes made, 501,448 to missing)
+
+. 
+. tab highcholesterol_year hypertension_year
+
+highcholes |   hypertension_year
+terol_year |         0          1 |     Total
+-----------+----------------------+----------
+         0 |     3,406      9,550 |    12,956 
+         1 |     2,573     31,927 |    34,500 
+-----------+----------------------+----------
+     Total |     5,979     41,477 |    47,456 
+
+. 
+. gen modactivity = mod10dmin
+
+. replace modactivity=. if mod10dmin==0 |  mod10dmin>996
+(282,697 real changes made, 282,697 to missing)
+
+. 
+. gen vigactivity = vig10dmin
+
+. replace vigactivity=. if vig10dmin==0 |  vig10dmin>996
+(362,579 real changes made, 362,579 to missing)
+
+. 
+. gen weightactivity=strongfwk
+
+. replace weightactivity=0 if strongfwk==95 | strongfwk==96
+(443,290 real changes made)
+
+. replace weightactivity=.5 if strongfwk==94
+(8,403 real changes made)
+
+. 
+. 
+. 
+
+. 
+. * Missing 56% of the time.
+
+. gen bmi_c = bmi 
+
+. replace bmi_c=. if bmi>=96 | bmi==0
+(24,016 real changes made, 24,016 to missing)
+
+. histogram bmi_c
+(bin=57, start=6.5999999, width=1.5354386)
+
+. 
+. gen bmi_miss=bmi_c==.
+
+. 
+. 
+. * 4,430 missing smoking status
+
+
+ 
+
+. save "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHI
+> S/NHIS-heartdisease-june4.dta"
+file /Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/N
+> HIS-heartdisease-june4.dta saved
+
+. use "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS
+> /NHIS-heartdisease-june4.dta"
+
+. 
+
+. 
+. gen sampweight20=(sampweight/20)
+
+. svyset [pweight=sampweight20], strata(strata) psu(psu)
+
+      pweight: sampweight20
+          VCE: linearized
+  Single unit: missing
+     Strata 1: strata
+         SU 1: psu
+        FPC 1: <zero>
+
+. 
+. 
+. save "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHI
+> S/NHIS-heartdisease-june4.dta", replace
+file /Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/N
+> HIS-heartdisease-june4.dta saved
+
+.
+
+. gen age20f=round(age/20) 
+
+. tab age20f
+
+     age20f |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |    112,001       18.57       18.57
+          2 |    218,273       36.19       54.76
+          3 |    182,163       30.20       84.96
+          4 |     90,703       15.04      100.00
+------------+-----------------------------------
+      Total |    603,140      100.00
+
+. 
+. 
+. gen age10f=round(age/10) 
+
+. 
+.
+. 
+. gen year_c = year-1999
+
+. save "/Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHI
+> S/NHIS-heartdisease-june4.dta", replace
+file /Users/jerosenbaum/Library/CloudStorage/OneDrive-DownstateMedicalCenter/projects/Sai NHIS/N
+> HIS-heartdisease-june4.dta saved
+
+. svy: logistic chd asthma_episode#female#i.age10f year_c age10 black aian asian  hispanic bornu
+> s_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgr
+> ad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c 
+> , or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#1.female#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                Number of obs     =      502,421
+Number of PSUs     =     1,937                Population size   =  188,865,469
+                                              Design df         =        1,246
+                                              F(  53,   1194)   =       366.99
+                                              Prob > F          =       0.0000
+
+----------------------------------------------------------------------------------------------
+                             |             Linearized
+                         chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-----------------------------+----------------------------------------------------------------
+asthma_episode#female#age10f |
+                      0 0 3  |   .7545169   .1602618    -1.33   0.185      .497388    1.144571
+                      0 0 4  |   1.126702   .1727539     0.78   0.437     .8340077    1.522118
+                      0 0 5  |   1.965032   .2744495     4.84   0.000     1.494065    2.584459
+                      0 0 6  |   2.338765   .3296359     6.03   0.000     1.773772    3.083723
+                      0 0 7  |   1.869786   .2935081     3.99   0.000     1.374186    2.544125
+                      0 0 8  |   1.352977   .2475992     1.65   0.099     .9448578    1.937379
+                      0 0 9  |   .8095324   .1768884    -0.97   0.334     .5273027    1.242821
+                      0 1 2  |   .8499088   .2556558    -0.54   0.589     .4710627    1.533437
+                      0 1 3  |    .569569   .1154678    -2.78   0.006     .3826625    .8477676
+                      0 1 4  |   .6344499     .10556    -2.73   0.006     .4577585     .879343
+                      0 1 5  |    .902226   .1293186    -0.72   0.473     .6810698    1.195196
+                      0 1 6  |   .9653738    .138487    -0.25   0.806      .728565    1.279154
+                      0 1 7  |   .7612595   .1194944    -1.74   0.082     .5594874    1.035798
+                      0 1 8  |   .6809176   .1245649    -2.10   0.036     .4755838    .9749046
+                      0 1 9  |   .5042528   .1094287    -3.16   0.002     .3294185    .7718778
+                      1 0 2  |   1.778041   1.306914     0.78   0.434     .4204115    7.519845
+                      1 0 3  |   .8625981   .5137049    -0.25   0.804     .2681622    2.774721
+                      1 0 4  |   1.216396   .4046163     0.59   0.556     .6333735    2.336092
+                      1 0 5  |   3.459019   .6663824     6.44   0.000     2.370331     5.04774
+                      1 0 6  |   3.358243    .598164     6.80   0.000     2.367828    4.762927
+                      1 0 7  |   2.352328   .4621574     4.35   0.000     1.599931    3.458553
+                      1 0 8  |   1.755004   .4399431     2.24   0.025     1.073228    2.869883
+                      1 0 9  |   1.231334   .4903501     0.52   0.601     .5637352    2.689532
+                      1 1 2  |   1.694322   1.147447     0.78   0.436     .4487198     6.39759
+                      1 1 3  |   .9020736   .2815752    -0.33   0.741     .4889762    1.664164
+                      1 1 4  |   1.724767   .4087764     2.30   0.022     1.083418    2.745773
+                      1 1 5  |   1.666892   .2873502     2.96   0.003     1.188581    2.337685
+                      1 1 6  |   1.493424   .2475284     2.42   0.016     1.078855    2.067299
+                      1 1 7  |   1.216466    .218818     1.09   0.276      .854746    1.731263
+                      1 1 8  |   1.134427   .2492095     0.57   0.566     .7372312    1.745618
+                      1 1 9  |          1  (omitted)
+                             |
+                      year_c |   .9962664   .0015689    -2.38   0.018     .9931932    .9993491
+                      age10f |   1.927116   .0819809    15.42   0.000     1.772809    2.094855
+                       black |     .80598   .0223336    -7.78   0.000      .763334    .8510085
+                        aian |   .8509421   .0941738    -1.46   0.145     .6848664     1.05729
+                       asian |   .8526531   .0491732    -2.76   0.006     .7614391    .9547938
+                    hispanic |   .7595212   .0275857    -7.57   0.000     .7072848    .8156155
+          bornus_territories |   1.166492   .0414671     4.33   0.000     1.087911    1.250749
+               currentsmoker |   1.458455   .0386504    14.24   0.000     1.384566    1.536288
+                formersmoker |   1.492725   .0287256    20.82   0.000      1.43742    1.550159
+          ever_told_diabetes |   2.348497   .0517964    38.71   0.000     2.249046    2.452345
+       ever_told_prediabetes |   1.733772   .0837088    11.40   0.000     1.577085    1.906027
+                         fpl |   .9805572   .0067355    -2.86   0.004     .9674317    .9938608
+                         ged |   1.071032   .0570717     1.29   0.198     .9647181    1.189061
+                      hsgrad |   .9184751   .0252807    -3.09   0.002      .870193    .9694361
+                    somecoll |   .9576027   .0290891    -1.43   0.154     .9022009    1.016406
+                          aa |   .9496236   .0353351    -1.39   0.165     .8827705     1.02154
+                      baplus |   .8755213   .0273886    -4.25   0.000     .8234041    .9309373
+                  unemployed |   1.168441    .086909     2.09   0.037     1.009793    1.352013
+           out_of_laborforce |    1.83089   .0494663    22.39   0.000     1.736371    1.930554
+                   rent_home |   1.133061   .0265577     5.33   0.000     1.082138     1.18638
+                    medicaid |   1.402297   .0417061    11.37   0.000     1.322817    1.486553
+              priv_insurance |   .9745716   .0221796    -1.13   0.258     .9320152    1.019071
+                       bmi_c |   1.026531   .0016017    16.78   0.000     1.023394    1.029678
+                       _cons |   .0002147   .0000566   -32.04   0.000      .000128    .0003601
+----------------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. margins i.age10f#asthma_episode#female
+
+Predictive margins                              Number of obs     =    502,421
+Model VCE    : Linearized
+
+Expression   : Pr(chd), predict()
+
+----------------------------------------------------------------------------------------------
+                             |            Delta-method
+                             |     Margin   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-----------------------------+----------------------------------------------------------------
+age10f#asthma_episode#female |
+                      2 0 0  |   .0028957   .0005457     5.31   0.000     .0018252    .0039663
+                      2 0 1  |   .0024629   .0006211     3.97   0.000     .0012444    .0036814
+                      2 1 0  |   .0051292   .0036088     1.42   0.155    -.0019509    .0122093
+                      2 1 1  |   .0048896   .0031563     1.55   0.122    -.0013027     .011082
+                      3 0 0  |   .0042011   .0005606     7.49   0.000     .0031014    .0053009
+                      3 0 1  |   .0031769   .0004095     7.76   0.000     .0023735    .0039802
+                      3 1 0  |   .0047981   .0027203     1.76   0.078    -.0005387    .0101349
+                      3 1 1  |   .0050158   .0013215     3.80   0.000     .0024231    .0076084
+                      4 0 0  |   .0119325   .0007411    16.10   0.000     .0104785    .0133865
+                      4 0 1  |    .006778   .0005113    13.26   0.000      .005775    .0077811
+                      4 1 0  |   .0128622    .003658     3.52   0.000     .0056858    .0200387
+                      4 1 1  |   .0180787   .0031364     5.76   0.000     .0119254     .024232
+                      5 0 0  |   .0383762   .0012226    31.39   0.000     .0359776    .0407748
+                      5 0 1  |   .0182203   .0007595    23.99   0.000     .0167302    .0197104
+                      5 1 0  |   .0646975   .0080823     8.00   0.000      .048841     .080554
+                      5 1 1  |   .0328523   .0035407     9.28   0.000     .0259059    .0397988
+                      6 0 0  |    .081961   .0016462    49.79   0.000     .0787314    .0851906
+                      6 0 1  |   .0364484    .001128    32.31   0.000     .0342354    .0386614
+                      6 1 0  |   .1120639    .010319    10.86   0.000     .0918194    .1323084
+                      6 1 1  |   .0547162    .004311    12.69   0.000     .0462586    .0631737
+                      7 0 0  |   .1189089   .0026215    45.36   0.000      .113766    .1240519
+                      7 0 1  |   .0538277   .0014368    37.46   0.000     .0510089    .0566465
+                      7 1 0  |   .1436708   .0144016     9.98   0.000     .1154167    .1719249
+                      7 1 1  |   .0821312   .0068029    12.07   0.000     .0687847    .0954777
+                      8 0 0  |   .1560473   .0039117    39.89   0.000     .1483732    .1637215
+                      8 0 1  |   .0877841   .0024693    35.55   0.000     .0829397    .0926285
+                      8 1 0  |   .1910364   .0246348     7.75   0.000     .1427061    .2393666
+                      8 1 1  |   .1353512   .0141102     9.59   0.000     .1076689    .1630335
+                      9 0 0  |   .1745328    .007344    23.77   0.000     .1601249    .1889407
+                      9 0 1  |   .1190632   .0046704    25.49   0.000     .1099006    .1282258
+                      9 1 0  |   .2384381   .0585214     4.07   0.000     .1236268    .3532495
+                      9 1 1  |   .2049483   .0323824     6.33   0.000     .1414183    .2684782
+----------------------------------------------------------------------------------------------
+
+. help margins
+
+. estimates store chd_asthma_episode_agef
+
+. 
+. coefplot chd_asthma_episode_agef
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons) xline(1) eform 
+
+. 
+. help coefplot
+
+. coefplot chd_asthma_episode_agef, keep(asthma_episode#female#i.age10f) xline(1) eform 
+(chd_asthma_episode_agef: no coefficients found, all dropped, or none kept)
+(nothing to plot)
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c) xli
+> ne(1) eform 
+
+. 
+. svy: logistic chd asthma_episode#female#i.age10f year_c age10 black aian asian  hispanic bornu
+> s_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgr
+> ad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c 
+> , or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#1.female#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                Number of obs     =      502,421
+Number of PSUs     =     1,937                Population size   =  188,865,469
+                                              Design df         =        1,246
+                                              F(  53,   1194)   =       366.99
+                                              Prob > F          =       0.0000
+
+----------------------------------------------------------------------------------------------
+                             |             Linearized
+                         chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-----------------------------+----------------------------------------------------------------
+asthma_episode#female#age10f |
+                      0 0 3  |   .7545169   .1602618    -1.33   0.185      .497388    1.144571
+                      0 0 4  |   1.126702   .1727539     0.78   0.437     .8340077    1.522118
+                      0 0 5  |   1.965032   .2744495     4.84   0.000     1.494065    2.584459
+                      0 0 6  |   2.338765   .3296359     6.03   0.000     1.773772    3.083723
+                      0 0 7  |   1.869786   .2935081     3.99   0.000     1.374186    2.544125
+                      0 0 8  |   1.352977   .2475992     1.65   0.099     .9448578    1.937379
+                      0 0 9  |   .8095324   .1768884    -0.97   0.334     .5273027    1.242821
+                      0 1 2  |   .8499088   .2556558    -0.54   0.589     .4710627    1.533437
+                      0 1 3  |    .569569   .1154678    -2.78   0.006     .3826625    .8477676
+                      0 1 4  |   .6344499     .10556    -2.73   0.006     .4577585     .879343
+                      0 1 5  |    .902226   .1293186    -0.72   0.473     .6810698    1.195196
+                      0 1 6  |   .9653738    .138487    -0.25   0.806      .728565    1.279154
+                      0 1 7  |   .7612595   .1194944    -1.74   0.082     .5594874    1.035798
+                      0 1 8  |   .6809176   .1245649    -2.10   0.036     .4755838    .9749046
+                      0 1 9  |   .5042528   .1094287    -3.16   0.002     .3294185    .7718778
+                      1 0 2  |   1.778041   1.306914     0.78   0.434     .4204115    7.519845
+                      1 0 3  |   .8625981   .5137049    -0.25   0.804     .2681622    2.774721
+                      1 0 4  |   1.216396   .4046163     0.59   0.556     .6333735    2.336092
+                      1 0 5  |   3.459019   .6663824     6.44   0.000     2.370331     5.04774
+                      1 0 6  |   3.358243    .598164     6.80   0.000     2.367828    4.762927
+                      1 0 7  |   2.352328   .4621574     4.35   0.000     1.599931    3.458553
+                      1 0 8  |   1.755004   .4399431     2.24   0.025     1.073228    2.869883
+                      1 0 9  |   1.231334   .4903501     0.52   0.601     .5637352    2.689532
+                      1 1 2  |   1.694322   1.147447     0.78   0.436     .4487198     6.39759
+                      1 1 3  |   .9020736   .2815752    -0.33   0.741     .4889762    1.664164
+                      1 1 4  |   1.724767   .4087764     2.30   0.022     1.083418    2.745773
+                      1 1 5  |   1.666892   .2873502     2.96   0.003     1.188581    2.337685
+                      1 1 6  |   1.493424   .2475284     2.42   0.016     1.078855    2.067299
+                      1 1 7  |   1.216466    .218818     1.09   0.276      .854746    1.731263
+                      1 1 8  |   1.134427   .2492095     0.57   0.566     .7372312    1.745618
+                      1 1 9  |          1  (omitted)
+                             |
+                      year_c |   .9962664   .0015689    -2.38   0.018     .9931932    .9993491
+                      age10f |   1.927116   .0819809    15.42   0.000     1.772809    2.094855
+                       black |     .80598   .0223336    -7.78   0.000      .763334    .8510085
+                        aian |   .8509421   .0941738    -1.46   0.145     .6848664     1.05729
+                       asian |   .8526531   .0491732    -2.76   0.006     .7614391    .9547938
+                    hispanic |   .7595212   .0275857    -7.57   0.000     .7072848    .8156155
+          bornus_territories |   1.166492   .0414671     4.33   0.000     1.087911    1.250749
+               currentsmoker |   1.458455   .0386504    14.24   0.000     1.384566    1.536288
+                formersmoker |   1.492725   .0287256    20.82   0.000      1.43742    1.550159
+          ever_told_diabetes |   2.348497   .0517964    38.71   0.000     2.249046    2.452345
+       ever_told_prediabetes |   1.733772   .0837088    11.40   0.000     1.577085    1.906027
+                         fpl |   .9805572   .0067355    -2.86   0.004     .9674317    .9938608
+                         ged |   1.071032   .0570717     1.29   0.198     .9647181    1.189061
+                      hsgrad |   .9184751   .0252807    -3.09   0.002      .870193    .9694361
+                    somecoll |   .9576027   .0290891    -1.43   0.154     .9022009    1.016406
+                          aa |   .9496236   .0353351    -1.39   0.165     .8827705     1.02154
+                      baplus |   .8755213   .0273886    -4.25   0.000     .8234041    .9309373
+                  unemployed |   1.168441    .086909     2.09   0.037     1.009793    1.352013
+           out_of_laborforce |    1.83089   .0494663    22.39   0.000     1.736371    1.930554
+                   rent_home |   1.133061   .0265577     5.33   0.000     1.082138     1.18638
+                    medicaid |   1.402297   .0417061    11.37   0.000     1.322817    1.486553
+              priv_insurance |   .9745716   .0221796    -1.13   0.258     .9320152    1.019071
+                       bmi_c |   1.026531   .0016017    16.78   0.000     1.023394    1.029678
+                       _cons |   .0002147   .0000566   -32.04   0.000      .000128    .0003601
+----------------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_asthma_episode_agef
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c) xli
+> ne(1) eform 
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c) xli
+> ne(1) eform omitted baselevels
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c) xli
+> ne(1) eform  baselevels
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c) xli
+> ne(1) eform  omitted
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c) xli
+> ne(1) eform  omitted baselevels
+
+. 
+. coefplot chd_asthma_episode_agef, drop(_cons year_c age10 black aian asian  hispanic bornus_te
+> rritories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad s
+> omecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c agef
+> ) xline(1) eform  omitted baselevels
+
+. 
+. 
+. 
+. svy: logistic chd asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_terri
+> tories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad some
+> coll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if fema
+> le==0, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     228,537
+Number of PSUs     =     1,936                 Population size   =  93,250,276
+                                               Design df         =       1,245
+                                               F(  37,   1209)   =      255.05
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .7107315   .1563506    -1.55   0.121     .4616059    1.094309
+                 0 4  |   1.018584   .1797252     0.10   0.917     .7205426    1.439906
+                 0 5  |   1.716999   .3239009     2.87   0.004     1.185878    2.485993
+                 0 6  |   1.989536   .4348917     3.15   0.002     1.295708    3.054897
+                 0 7  |   1.570525   .4030173     1.76   0.079     .9492985    2.598286
+                 0 8  |   1.120291   .3392455     0.38   0.708     .6184719    2.029279
+                 0 9  |   .6588121   .2335561    -1.18   0.239     .3286304    1.320734
+                 1 2  |   1.792465   1.317482     0.79   0.427     .4238377    7.580572
+                 1 3  |   .8153788   .4806509    -0.35   0.729     .2565095    2.591883
+                 1 4  |   1.125872   .3914948     0.34   0.733     .5691358    2.227213
+                 1 5  |   3.137377   .7267777     4.94   0.000     1.991558    4.942431
+                 1 6  |   2.942374   .7354352     4.32   0.000     1.801923    4.804625
+                 1 7  |   2.022361   .5835125     2.44   0.015     1.148213    3.562011
+                 1 8  |   1.496503   .5270685     1.14   0.253     .7498817    2.986501
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9958145   .0020012    -2.09   0.037     .9918961    .9997483
+               age10f |   1.981104   .1122384    12.07   0.000     1.772703    2.214005
+                black |    .683235   .0275235    -9.46   0.000     .6313161    .7394236
+                 aian |   .9332109   .1305195    -0.49   0.621     .7092745     1.22785
+                asian |   .8289077    .061212    -2.54   0.011     .7171114    .9581328
+             hispanic |   .6828898   .0311694    -8.36   0.000     .6243974    .7468616
+   bornus_territories |   1.223138   .0585616     4.21   0.000     1.113479    1.343597
+        currentsmoker |   1.462211   .0504682    11.01   0.000     1.366476    1.564652
+         formersmoker |   1.529949   .0411497    15.81   0.000     1.451311    1.612847
+   ever_told_diabetes |   2.261568   .0649853    28.40   0.000     2.137603    2.392723
+ever_told_prediabetes |   1.749989   .1091742     8.97   0.000     1.548392    1.977834
+                  fpl |   .9997796   .0093241    -0.02   0.981     .9816532    1.018241
+                  ged |   1.146813   .0819012     1.92   0.055     .9968816    1.319293
+               hsgrad |   .9649969   .0368341    -0.93   0.351     .8953725    1.040035
+             somecoll |     1.0601   .0451574     1.37   0.171     .9751077      1.1525
+                   aa |   .9921968   .0508598    -0.15   0.879     .8972696    1.097167
+               baplus |   .9686975   .0395488    -0.78   0.436     .8941338    1.049479
+           unemployed |    1.16851   .1158364     1.57   0.116     .9619875     1.41937
+    out_of_laborforce |   1.757135   .0610819    16.22   0.000     1.641295     1.88115
+            rent_home |   1.073561   .0341416     2.23   0.026     1.008626    1.142676
+             medicaid |   1.370958   .0566258     7.64   0.000     1.264247    1.486676
+       priv_insurance |   .9865442    .029954    -0.45   0.656     .9294943    1.047096
+                bmi_c |   1.028501   .0024137    11.97   0.000     1.023777    1.033248
+                _cons |   .0001785   .0000493   -31.26   0.000     .0001039    .0003069
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_asthma_episode_m
+
+. 
+. svy: logistic chd asthma_episode#i.age10f year_c age10 black aian asian  hispanic bornus_terri
+> tories currentsmoker formersmoker ever_told_diabetes ever_told_prediabetes fpl ged hsgrad some
+> coll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv_insurance bmi_c if fema
+> le==1, or
+(running logistic on estimation sample)
+
+note: 1.asthma_episode#9.age10f omitted because of collinearity
+
+Survey: Logistic regression
+
+Number of strata   =       691                 Number of obs     =     273,884
+Number of PSUs     =     1,937                 Population size   =  95,615,192
+                                               Design df         =       1,246
+                                               F(  37,   1210)   =      200.06
+                                               Prob > F          =      0.0000
+
+---------------------------------------------------------------------------------------
+                      |             Linearized
+                  chd | Odds Ratio   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------------+----------------------------------------------------------------
+asthma_episode#age10f |
+                 0 3  |   .6875447   .1679549    -1.53   0.125     .4257606     1.11029
+                 0 4  |   .7692402   .1574861    -1.28   0.200     .5147858    1.149469
+                 0 5  |   1.085805   .1930881     0.46   0.643     .7660125    1.539103
+                 0 6  |   1.116784   .1870875     0.66   0.510     .8039595    1.551329
+                 0 7  |   .8228937   .1390192    -1.15   0.249     .5907482    1.146265
+                 0 8  |   .7011056   .1313323    -1.90   0.058     .4854896    1.012481
+                 0 9  |   .4985846   .1084082    -3.20   0.001     .3254472    .7638308
+                 1 2  |   2.018495   1.413929     1.00   0.316     .5107315    7.977427
+                 1 3  |    1.08357   .3738938     0.23   0.816     .5506277    2.132337
+                 1 4  |   2.042783   .5360041     2.72   0.007     1.220841    3.418106
+                 1 5  |    1.91767   .3847337     3.25   0.001     1.293704     2.84258
+                 1 6  |   1.672256   .3140767     2.74   0.006     1.156853    2.417284
+                 1 7  |   1.304908   .2518185     1.38   0.168     .8936289    1.905473
+                 1 8  |   1.150353   .2561285     0.63   0.529     .7432327     1.78048
+                 1 9  |          1  (omitted)
+                      |
+               year_c |   .9987126   .0024346    -0.53   0.597     .9939475      1.0035
+               age10f |   1.965433   .0941432    14.11   0.000     1.789149    2.159086
+                black |   .9878143   .0378777    -0.32   0.749     .9162295    1.064992
+                 aian |   .7453524   .1198194    -1.83   0.068     .5437427    1.021715
+                asian |   .8990217   .0830475    -1.15   0.249      .750004    1.077647
+             hispanic |   .8832194   .0464661    -2.36   0.018     .7966057    .9792506
+   bornus_territories |   1.081568   .0566433     1.50   0.135     .9759598    1.198605
+        currentsmoker |   1.527519   .0603463    10.72   0.000     1.413599    1.650619
+         formersmoker |   1.474373   .0460802    12.42   0.000     1.386686    1.567606
+   ever_told_diabetes |   2.462926   .0824367    26.93   0.000     2.306391    2.630084
+ever_told_prediabetes |   1.685197   .1360739     6.46   0.000     1.438309    1.974464
+                  fpl |   .9392862   .0105498    -5.58   0.000     .9188152    .9602132
+                  ged |   .9869943   .0787765    -0.16   0.870     .8439377    1.154301
+               hsgrad |   .8824563   .0351024    -3.14   0.002     .8162085    .9540811
+             somecoll |   .8421348   .0381433    -3.79   0.000      .770531    .9203926
+                   aa |   .9204935   .0475974    -1.60   0.109     .8316939    1.018774
+               baplus |   .7308925   .0374345    -6.12   0.000     .6610202    .8081507
+           unemployed |   1.235602   .1528208     1.71   0.087     .9693904    1.574921
+    out_of_laborforce |   2.058914   .0892794    16.65   0.000     1.891003    2.241735
+            rent_home |   1.197059   .0399579     5.39   0.000     1.121178    1.278075
+             medicaid |   1.335279   .0563918     6.85   0.000     1.229105    1.450625
+       priv_insurance |   .9547194   .0326132    -1.36   0.175     .8928335    1.020895
+                bmi_c |   1.021118   .0021748     9.81   0.000      1.01686    1.025393
+                _cons |   .0002171   .0000748   -24.50   0.000     .0001105    .0004267
+---------------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+
+. estimates store chd_asthma_episode_f
+
+. 
+. 
+. coefplot chd_asthma_episode_f || chd_asthma_episode_f, drop(_cons year_c age10 black aian asia
+> n  hispanic bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediab
+> etes fpl ged hsgrad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv
+> _insurance bmi_c agef) xline(1) eform  omitted baselevels
+
+. coefplot chd_asthma_episode_f || chd_asthma_episode_f, drop(_cons year_c age10 black aian asia
+> n  hispanic bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediab
+> etes fpl ged hsgrad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv
+> _insurance bmi_c agef) xline(1) eform  
+
+. 
+. coefplot chd_asthma_episode_m || chd_asthma_episode_f, drop(_cons year_c age10 black aian asia
+> n  hispanic bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediab
+> etes fpl ged hsgrad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv
+> _insurance bmi_c agef) xline(1) eform  
+
+. 
+. coefplot chd_asthma_episode_m || chd_asthma_episode_f, drop(_cons year_c age10 black aian asia
+> n  hispanic bornus_territories currentsmoker formersmoker ever_told_diabetes ever_told_prediab
+> etes fpl ged hsgrad somecoll aa baplus   unemployed out_of_laborforce rent_home  medicaid priv
+> _insurance bmi_c agef) xline(1) eform  xtitle(Odds ratio) graphregion(color(white)) bgcolor(wh
+> ite)
+
+. 
+. exit
